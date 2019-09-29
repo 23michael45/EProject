@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Tangram\TangramDetection.cpp">
+      <Filter>Tangram</Filter>
+    </ClCompile>
+    <ClCompile Include="Tangram\TangramData.cpp">
+      <Filter>Tangram</Filter>
+    </ClCompile>
+    <ClCompile Include="Tangram\TangramUtility.cpp">
+      <Filter>Tangram</Filter>
+    </ClCompile>
+    <ClCompile Include="Tangram\TangramStates.cpp">
+      <Filter>Tangram</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Tangram">
+      <UniqueIdentifier>{3b6c73db-2103-4d02-bdb0-e6db423d708d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{202f88c9-d8ee-4d98-aef7-9ef0ad1e5780}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\FSM">
+      <UniqueIdentifier>{9aefe713-0e3a-4419-bc14-5812d20d40ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tangram\TangramDetection.h">
+      <Filter>Tangram</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Interface.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\FSM\FSM.h">
+      <Filter>Utility\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="Tangram\TangramData.h">
+      <Filter>Tangram</Filter>
+    </ClInclude>
+    <ClInclude Include="Tangram\TangramUtility.h">
+      <Filter>Tangram</Filter>
+    </ClInclude>
+    <ClInclude Include="Tangram\TangramStates.h">
+      <Filter>Tangram</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
