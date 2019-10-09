@@ -5,40 +5,49 @@
 #include "Tangram/TangramData.h"
 #include "Utility/FSM/FSM.h"
 #include "Tangram/TangramStates.h"
+#include <vector>
 class TangramDetector : public std::enable_shared_from_this<TangramDetector>
 {
+
+	friend class WithBasePieceState;
+	friend class NoBasePieceState;
 public:
-	TangramDetector();
+	TangramDetector() {};
 
 
-	bool Init();
+	bool Init(cv::Mat templateFrame);
 
 	void Update(cv::Mat& frame);
 	void Test();
 private:
-	void DetectPieces();
-	void FindBase();;
-	void FindRelative() {};
+	void DrawResult(std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector);
+
+	bool FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector);
 
 
-	cv::Vec3b HSV_U2CV(cv::Vec3b c);
-	double GetColorDist(cv::Vec3b c1, cv::Vec3b c2);
+	bool PiecesAngleDist(std::shared_ptr<TangramElementInfo> spBasePiece, std::shared_ptr<TangramElementInfo> spRelativePiece, double& dist);
+	bool PiecesCenterDist(std::shared_ptr<TangramElementInfo> spBasePiece, std::shared_ptr<TangramElementInfo> spRelativePiece, cv::Point& dist);
 
-	cv::Mat GetHsvMask(cv::Mat src, cv::Vec3b color, double dist);
-
-	std::vector<cv::Point> FindLargestContour(cv::Mat src);
-
-	std::map<std::string, cv::Vec3b> HSVPiecesMap;
 
 
 	std::shared_ptr<StateMachine<TangramDetector>> m_spStateMachine;
 
-	std::shared_ptr<TangramElementInfo> m_spBaseElement;
+	std::shared_ptr<TangramElementInfo> m_spCurBaseElement;
+	std::shared_ptr<TangramElementInfo> m_spTemplateBaseElement;
 
-	cv::Mat &m_curFrame;
+
+	std::shared_ptr<TangramGraph> m_spCurrentGraph;
+	std::shared_ptr<TangramGraph> m_spTemplateGraph;
+
+	double m_TemplateDivideCurRate;
+	cv::Point m_ScreenCenter;
 
 
-	std::map<TangramElementInfo::TangrameType , std::vector<std::shared_ptr<TangramElementInfo>>> m_Pieces;
+	std::map<TangramElementInfo::TangramTypeName, cv::Vec3b> m_HSVMap;
+	std::vector<TangramElementInfo::TangramType> m_TypeVector;
+	std::vector<TangramElementInfo::TangramTypeName> m_TypeNameVector;
+
+	cv::Mat m_CurrentDrawFrame;
 };
 
 

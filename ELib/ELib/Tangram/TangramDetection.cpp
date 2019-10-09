@@ -4,239 +4,418 @@
 
 using namespace cv;
 
-cv::Vec3f HSV_SmallTriangle1(282, 52, 89);
-cv::Vec3f HSV_SmallTriangle2(4, 29, 45);
-
-cv::Vec3f HSV_MidTriangle(15, 88, 97);
-
-cv::Vec3f HSV_BigTriangle1(158, 74, 54);
-cv::Vec3f HSV_BigTriangle2(4, 88, 87);
-
-cv::Vec3f HSV_Square(54, 83, 100);
-
-cv::Vec3f HSV_Parallel(207, 87, 89);
 
 
-bool TangramDetector::Init()
+
+bool TangramDetector::Init(cv::Mat templateFrame)
 {
-	HSVPiecesMap["SmallTriangle1"] = HSV_SmallTriangle1;
-	HSVPiecesMap["SmallTriangle2"] = HSV_SmallTriangle2;
-	HSVPiecesMap["MidTriangle"] = HSV_MidTriangle;
-	HSVPiecesMap["BigTriangle1"] = HSV_BigTriangle1;
-	HSVPiecesMap["BigTriangle2"] = HSV_BigTriangle2;
-	HSVPiecesMap["Square"] = HSV_Square;
-	HSVPiecesMap["Parallel"] = HSV_Parallel;
+	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_STRI);
+	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_MTRI);
+	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_LTRI);
+	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_SQR);
+	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_PARA);
 
-	m_Pieces[TangramElementInfo::TangrameType::TT_STRI] = std::vector<std::shared_ptr<TangramElementInfo>>(2);
-	m_Pieces[TangramElementInfo::TangrameType::TT_MTRI] = std::vector<std::shared_ptr<TangramElementInfo>>(2);
-	m_Pieces[TangramElementInfo::TangrameType::TT_LTRI] = std::vector<std::shared_ptr<TangramElementInfo>>(1);
-	m_Pieces[TangramElementInfo::TangrameType::TT_STRI] = std::vector<std::shared_ptr<TangramElementInfo>>(1);
-	m_Pieces[TangramElementInfo::TangrameType::TT_PARA] = std::vector<std::shared_ptr<TangramElementInfo>>(1);
+	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_STRI_1);
+	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_STRI_2);
+	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_MTRI);
+	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_LTRI_1);
+	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_LTRI_2);
+	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_SQR);
+	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_PARA);
 
-	m_spStateMachine = std::make_shared<StateMachine<TangramDetector>>();
-	ADD_STATE(m_spStateMachine, NoBasePieceState)
-		ADD_STATE(m_spStateMachine, WithBasePieceState)
+	//cv::Vec3f TT_STRI_1(282, 51, 90);
+	//cv::Vec3f TT_STRI_2(4, 29, 45);
+	//cv::Vec3f TT_MTRI(15, 88, 97);
+	//cv::Vec3f TT_LTRI_1(158, 74, 54);
+	//cv::Vec3f TT_LTRI_2(4, 88, 87);
+	//cv::Vec3f TT_SQR(54, 83, 100);
+	//cv::Vec3f TT_PARA(207, 87, 89);
+	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_STRI_1] = TT_STRI_1;
+	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_STRI_2] = TT_STRI_2;
+	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_MTRI] = TT_MTRI;
+	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_LTRI_1] = TT_LTRI_1;
+	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_LTRI_2] = TT_LTRI_2;
+	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_SQR] = TT_SQR;
+	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_PARA] = TT_PARA;
+
+
+	m_spTemplateGraph = std::make_shared<TangramGraph>(m_TypeNameVector);
+
+
+
+	cv::Mat hsv;
+	cv::cvtColor(templateFrame, hsv, cv::COLOR_BGR2HSV);
+
+	if(m_spTemplateGraph->InitAsTemplate(hsv,m_HSVMap))
+	{
+		m_spCurrentGraph = std::make_shared<TangramGraph>(m_TypeNameVector);
 		return true;
-}
-
-void TangramDetector::DetectPieces()
-{
-	cv::Mat hsv;
-	cv::cvtColor(m_curFrame, hsv, COLOR_BGR2HSV);
-
-	float hsvDistThreshold = 20;
-
-
-	int curIndex = 0;
-
-	for (auto iter = HSVPiecesMap.begin(); iter != HSVPiecesMap.end(); iter++)
-	{
-		cv::Mat mask = GetHsvMask(hsv, HSV_U2CV(iter->second), hsvDistThreshold);
-
-		cv::GaussianBlur(mask, mask, Size(5, 5), 0);
-
-		cv::Mat element_9(9, 9, CV_8U, cv::Scalar(1));
-
-		cv::morphologyEx(mask, mask, cv::MORPH_OPEN, element_9);
-		cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, element_9);
-
-		cv::threshold(mask, mask, 0, 255, THRESH_BINARY);
-
-		//Canny(mask, mask, 100, 250);
-
-		//cv::morphologyEx(mask, mask, cv::MORPH_GRADIENT, element_9);
-
-
-		auto contour = FindLargestContour(mask);
-
-		double epsilon = mask.rows / 16;
-
-		std::vector<cv::Point> approxes;
-		cv::approxPolyDP(contour, approxes, epsilon, true);
-
-
-		std::shared_ptr<TangramElementInfo> spTangramInfo = std::make_shared<TangramElementInfo>();
-		spTangramInfo->Init(approxes);
-
-		if (spTangramInfo->Equal(m_spBaseElement))
-		{
-
-		}
-
-
-		//m_Pieces[curIndex] = spTangramInfo;
-
-		curIndex++;
 	}
+	return false;
+
+	//m_spStateMachine = std::make_shared<StateMachine<TangramDetector>>();
+	//ADD_STATE(m_spStateMachine, NoBasePieceState)
+	//ADD_STATE(m_spStateMachine, WithBasePieceState)
+
+	//m_spStateMachine->enterState<NoBasePieceState>();
 
 }
 
-void TangramDetector::FindBase()
+
+//如果有两个同类块，根据向量角度进行匹配
+std::map<std::shared_ptr<TangramElementInfo>, std::vector< std::shared_ptr<TangramElementInfo>>> GetPairFromTypeVec(std::vector<std::shared_ptr<TangramElementInfo>> curVec, std::vector<std::shared_ptr<TangramElementInfo>> tempVec)
 {
-	if (m_spBaseElement != nullptr)
+	std::map<std::shared_ptr<TangramElementInfo>, std::vector< std::shared_ptr<TangramElementInfo>>> pairVecMap;
+
+	if (curVec.size() == 1 && tempVec.size() == 1)
 	{
-		return;
-	}
+		std::shared_ptr<TangramElementInfo> spCurElement = curVec[0];
+		std::shared_ptr<TangramElementInfo> spTempElement = tempVec[0];
 
-	cv::Mat hsv;
-	cv::cvtColor(m_curFrame, hsv, COLOR_BGR2HSV);
-
-	float hsvDistThreshold = 20;
-
-
-	int curIndex = 0;
-	int blIndex = -1;
-	int blX = 999999;
-	int blY = 999999;
-	for (auto iter = HSVPiecesMap.begin(); iter != HSVPiecesMap.end(); iter++)
-	{
-		cv::Mat mask = GetHsvMask(hsv, HSV_U2CV(iter->second), hsvDistThreshold);
-
-
-		cv::GaussianBlur(mask, mask, Size(5, 5), 0);
-
-		cv::Mat element_9(9, 9, CV_8U, cv::Scalar(1));
-
-		cv::morphologyEx(mask, mask, cv::MORPH_OPEN, element_9);
-		cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, element_9);
-
-		cv::threshold(mask, mask, 0, 255, THRESH_BINARY);
-
-		//Canny(mask, mask, 100, 250);
-
-		//cv::morphologyEx(mask, mask, cv::MORPH_GRADIENT, element_9);
-
-
-		auto contour = FindLargestContour(mask);
-
-		double epsilon = mask.rows / 16;
-
-		std::vector<cv::Point> approxes;
-		cv::approxPolyDP(contour, approxes, epsilon, true);
-
-
-		std::shared_ptr<TangramElementInfo> spTangramInfo = std::make_shared<TangramElementInfo>();
-		spTangramInfo->Init(approxes);
-
-		if (spTangramInfo->Equal(m_spBaseElement))
+		if (pairVecMap.find(spCurElement) == pairVecMap.end())
 		{
-
+			pairVecMap[spCurElement] = std::vector< std::shared_ptr<TangramElementInfo>>();
 		}
-
-
-		pieces[curIndex] = spTangramInfo;
-
-		curIndex++;
+		pairVecMap[spCurElement].emplace_back(spTempElement);
 	}
-
-
-	for (int i = 0; i < pieces.size(); i++)
+	else if (curVec.size() == 1 && tempVec.size() == 2)
 	{
-		if (i == blIndex)
+		std::shared_ptr<TangramElementInfo> spCurElement = curVec[0];
+
+		for (auto tempEleIter = tempVec.begin(); tempEleIter != tempVec.end(); tempEleIter++)
 		{
+			std::shared_ptr<TangramElementInfo> spTempElement = *tempEleIter;
+
+			if (spCurElement->PoseEqual(spTempElement))
+			{
+				if (pairVecMap.find(spCurElement) == pairVecMap.end())
+				{
+					pairVecMap[spCurElement] = std::vector< std::shared_ptr<TangramElementInfo>>();
+				}
+
+				pairVecMap[spCurElement].emplace_back(spTempElement);
+			}
+		}
+	}
+	else if (curVec.size() == 2 && tempVec.size() == 2)
+	{
+
+		std::shared_ptr<TangramElementInfo> spTempElement0 = tempVec[0];
+		std::shared_ptr<TangramElementInfo> spTempElement1 = tempVec[1];
+
+		std::shared_ptr<TangramElementInfo> spCurElement0 = curVec[0];
+		std::shared_ptr<TangramElementInfo> spCurElement1 = curVec[1];
+
+		double RateTempDivCur = (spTempElement0->mPerimeter / spCurElement0->mPerimeter + spTempElement1->mPerimeter / spCurElement1->mPerimeter) / 2;
+
+		cv::Point tempDist = spTempElement0->mCenterPt - spTempElement1->mCenterPt;
+		cv::Point dist01 = spCurElement0->mCenterPt - spCurElement1->mCenterPt;
+		cv::Point dist10 = spCurElement1->mCenterPt - spCurElement0->mCenterPt;
+		if (abs(get_vector_angle(tempDist, dist01)) < abs(get_vector_angle(tempDist, dist10)))
+		{
+			if (pairVecMap.find(spCurElement0) == pairVecMap.end())
+			{
+				pairVecMap[spCurElement0] = std::vector< std::shared_ptr<TangramElementInfo>>();
+			}
+
+			pairVecMap[spCurElement0].emplace_back(spTempElement0);
+
+
+			if (pairVecMap.find(spCurElement1) == pairVecMap.end())
+			{
+				pairVecMap[spCurElement1] = std::vector< std::shared_ptr<TangramElementInfo>>();
+			}
+
+			pairVecMap[spCurElement1].emplace_back(spTempElement1);
 
 		}
 		else
 		{
+			if (pairVecMap.find(spCurElement0) == pairVecMap.end())
+			{
+				pairVecMap[spCurElement0] = std::vector< std::shared_ptr<TangramElementInfo>>();
+			}
 
+			pairVecMap[spCurElement0].emplace_back(spTempElement1);
+
+
+			if (pairVecMap.find(spCurElement1) == pairVecMap.end())
+			{
+				pairVecMap[spCurElement1] = std::vector< std::shared_ptr<TangramElementInfo>>();
+			}
+
+			pairVecMap[spCurElement1].emplace_back(spTempElement0);
 		}
+
+	}
+	return pairVecMap;
+}
+
+
+void TangramDetector::DrawResult(std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector)
+{
+	if(m_spCurBaseElement == nullptr)
+	{
+		return;
+	}
+	std::vector<std::vector<cv::Point>> contours;
+	Scalar color(255, 0, 255);
+
+	contours.clear();
+	contours.emplace_back(m_spCurBaseElement->mContour);
+
+
+	drawContours(m_CurrentDrawFrame, contours, 0, color, 2, LINE_AA);
+
+	for (auto iter = fitElementsVector.begin(); iter != fitElementsVector.end(); iter++)
+	{
+		std::shared_ptr<TangramElementInfo> spCurInfo = *iter;
+
+		contours.clear();
+		contours.emplace_back(spCurInfo->mContour);
+
+		Scalar color(255, 255, 0);
+		drawContours(m_CurrentDrawFrame, contours, 0, color, 2, LINE_AA);
+
+
 	}
 }
 
-cv::Vec3b TangramDetector::HSV_U2CV(cv::Vec3b c)
+bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector)
 {
-	float h = c[0];
-	float s = c[1];
-	float v = c[2];
+	//清空记录
+	m_spCurrentGraph->ClearElement();
+	m_spCurBaseElement = nullptr;
+	m_spTemplateBaseElement = nullptr;
 
-	return cv::Vec3b(h / 2, s / 100 * 255, v / 100 * 255);
-}
 
-double TangramDetector::GetColorDist(cv::Vec3b c1, cv::Vec3b c2)
-{
-	return sqrt(pow(c2[0] - c1[0], 2) + pow(c2[1] - c1[1], 2) + pow(c2[2] - c1[2], 2));
-}
+	//取形状轮廓
+	auto contours = m_spCurrentGraph->FindTangramContours(hsvFrame);
 
-cv::Mat TangramDetector::GetHsvMask(cv::Mat src, cv::Vec3b color, double dist)
-{
-	//std::cout << src << std::endl;
-
-	cv::Mat mask(src.size(), CV_8UC1);
-	for (int c = 0; c < src.cols; c++)
+	cv::Mat white = cv::Mat::zeros(hsvFrame.size(), CV_8UC1);
+	for (int i = 0; i < contours.size(); i++)
 	{
-		for (int r = 0; r < src.rows; r++)
+		drawContours(white, contours, i, cv::Scalar(255), cv::FILLED);
+	}
+	imshow("while", white);
+
+	//根据轮廓和颜色HSV，填入数据表
+	m_spCurrentGraph->FillWithContours(contours, hsvFrame, m_HSVMap);
+
+
+
+	float minAngleThresh = 5;
+	float minCenterDist = 9999;
+
+
+	double minDistToCenter = 9999;
+
+
+	//查找基准块
+	for (auto typeIter = m_TypeVector.begin(); typeIter != m_TypeVector.end(); typeIter++)
+	{
+		std::vector<std::shared_ptr<TangramElementInfo>> curVec = m_spCurrentGraph->FindInfosByType(*typeIter);
+		std::vector<std::shared_ptr<TangramElementInfo>> tempVec = m_spTemplateGraph->FindInfosByType(*typeIter);
+
+		auto typeMap = GetPairFromTypeVec(curVec, tempVec);
+
+		for (auto iter = typeMap.begin(); iter != typeMap.end(); iter++)
 		{
+			std::shared_ptr<TangramElementInfo> spCur = iter->first;
 
-			cv::Vec3b& col = src.at<cv::Vec3b>(r, c);
 
-			double cdist = GetColorDist(col, color);
-			if (cdist < dist)
+			for (auto itertemp : iter->second)
 			{
-				mask.at<uchar>(r, c) = 255;
+				std::shared_ptr<TangramElementInfo> spTemp = itertemp;
+
+				if (spCur->PoseEqual(spTemp))
+				{
+					double dist = GetDist(spCur->mCenterPt, m_ScreenCenter);
+					if (dist < minDistToCenter)
+					{
+						minDistToCenter = dist;
+						m_spCurBaseElement = spCur;
+						m_spTemplateBaseElement = spTemp;
+					}
+				}
+			}
+
+	
+		}
+
+	}
+
+	if (m_spCurBaseElement != nullptr && m_spTemplateBaseElement != nullptr)
+	{
+
+		//比较形状，同形状可能有两块，要全比对一次
+		for (auto typeIter = m_TypeVector.begin(); typeIter != m_TypeVector.end(); typeIter++)
+		{
+			std::map<std::shared_ptr<TangramElementInfo>, std::vector< std::shared_ptr<TangramElementInfo>>> typeVecMap;
+			std::vector<std::shared_ptr<TangramElementInfo>> curVec;
+			std::vector<std::shared_ptr<TangramElementInfo>> tempVec;
+
+			if (m_spCurBaseElement->mType == *typeIter)
+			{
+				if (*typeIter == TangramElementInfo::TangramType::TT_MTRI ||
+					*typeIter == TangramElementInfo::TangramType::TT_SQR ||
+					*typeIter == TangramElementInfo::TangramType::TT_PARA)
+				{
+					continue;
+				}
+				else
+				{
+					auto curVecSrc = m_spCurrentGraph->FindInfosByType(*typeIter);
+					auto tempVecSrc = m_spTemplateGraph->FindInfosByType(*typeIter);
+					
+					for (auto sp : curVecSrc)
+					{
+						if (sp != m_spCurBaseElement)
+						{
+							for (auto sptemp : tempVecSrc)
+							{
+
+								if (typeVecMap.find(sp) == typeVecMap.end())
+								{
+									typeVecMap[sp] = std::vector< std::shared_ptr<TangramElementInfo>>();
+								}
+
+								typeVecMap[sp].emplace_back(sptemp);
+							}
+						}
+					}
+				}
 			}
 			else
 			{
-				mask.at<uchar>(r, c) = 0;
+				curVec = m_spCurrentGraph->FindInfosByType(*typeIter);
+				tempVec = m_spTemplateGraph->FindInfosByType(*typeIter);
+				typeVecMap = GetPairFromTypeVec(curVec, tempVec);
+			}
+
+
+
+
+
+			//typeVecMap 一个curInfo可能和一个或两个templateInfo比对，所以minCenterDist放在第一层for里边
+			std::shared_ptr<TangramElementInfo> minDistCurInfo = nullptr;
+			for (auto iter : typeVecMap)
+			{
+				float minCenterDist = 9999;
+				auto spCurInfo = iter.first;
+
+				for (auto spTemplateInfo : iter.second)
+				{
+
+					if (spCurInfo == nullptr || spTemplateInfo == nullptr)
+					{
+						continue;
+					}
+
+					if (spCurInfo != m_spCurBaseElement && spTemplateInfo != m_spTemplateBaseElement)
+					{
+						//摄相头中，当前块与基准块距离
+						cv::Point centerCurDist;
+						PiecesCenterDist(m_spCurBaseElement, spCurInfo, centerCurDist);
+
+
+						//模板图中，当前块与基准块距离
+						cv::Point centerTemplateDist;
+						PiecesCenterDist(m_spTemplateBaseElement, spTemplateInfo, centerTemplateDist);
+
+						//摄相头与模板图中，当前块的角度差
+						double angDist;
+						PiecesAngleDist(spCurInfo, spTemplateInfo, angDist);
+						double threshAngle = 20;
+						double threshCenter = 20;
+
+						double TempDivCurRate = spTemplateInfo->mPerimeter / spCurInfo->mPerimeter;
+
+						double centerDist = GetDist(centerCurDist * TempDivCurRate, centerTemplateDist);
+
+
+
+						if (abs(angDist) < threshAngle && centerDist < threshCenter)
+						{
+
+							if (centerDist < minCenterDist)
+							{
+								minCenterDist = centerDist;
+								minDistCurInfo = spCurInfo;
+							}
+						}
+
+					}
+				}
+
+
+				if (minDistCurInfo != nullptr)
+				{
+					fitElementsVector.emplace_back(minDistCurInfo);
+				}
 			}
 		}
 	}
-	return mask;
+
+
+
+
+	return true;
+
+
+
 }
 
-std::vector<cv::Point> TangramDetector::FindLargestContour(cv::Mat src)
+
+bool TangramDetector::PiecesAngleDist(std::shared_ptr<TangramElementInfo> spBasePiece, std::shared_ptr<TangramElementInfo> spRelativePiece, double& dist)
 {
-	std::vector<std::vector<cv::Point>> contours;
-	std::vector<cv::Vec4i> hierarchy;
-
-	findContours(src, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-	int largest_area = 0;
-	int largest_contour_index = 0;
-	cv::Rect bounding_rect;
-
-	for (int i = 0; i < contours.size(); i++) // iterate through each contour.
+	if (spBasePiece != nullptr &&
+		spRelativePiece != nullptr)
 	{
-		double a = contourArea(contours[i], false);  //  Find the area of contour
-		if (a > largest_area) {
-			largest_area = a;
-			largest_contour_index = i;                //Store the index of largest contour
-			bounding_rect = boundingRect(contours[i]); // Find the bounding rectangle for biggest contour
-		}
+		dist = spBasePiece->GetAngle() - spRelativePiece->GetAngle();
+
+		return true;
 	}
-
-	//cv::Mat draw = src.clone();
-	//drawContours(draw, contours, largest_contour_index, cv::Scalar(255, 0, 0), cv::FILLED, 8);
-	//cv::imshow("img_rot", draw);
-	//cv::waitKey();
-
-	return contours[largest_contour_index];
+	else
+	{
+		return false;
+	}
 }
 
+bool TangramDetector::PiecesCenterDist(std::shared_ptr<TangramElementInfo> spBasePiece, std::shared_ptr<TangramElementInfo> spRelativePiece, cv::Point& dist)
+{
+	if (spBasePiece != nullptr &&
+		spRelativePiece != nullptr)
+	{
+		dist = spBasePiece->mCenterPt - spRelativePiece->mCenterPt;
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 void TangramDetector::Update(cv::Mat& frame)
 {
-	m_curFrame = frame;
-	m_spStateMachine->updateWithDeltaTime();
+	m_ScreenCenter = cv::Point(frame.cols / 2, frame.rows / 2);
+
+
+	m_CurrentDrawFrame = frame.clone();
+
+
+	cv::Mat hsv;
+	cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
+
+	std::vector<std::shared_ptr<TangramElementInfo>> fitElementsVector;
+	if (FindBaseWithEdge(hsv, fitElementsVector))
+	{
+		DrawResult(fitElementsVector);
+	}
+
+	cv::imshow("Draw", m_CurrentDrawFrame);
+	//m_spStateMachine->updateWithDeltaTime();
 }
 
 //----------------------------------------------------------------------------------------------
@@ -263,12 +442,39 @@ cv::Mat rotateImage(cv::Mat img, int degree)
 void TangramDetector::Test()
 {
 
-	cv::Mat src = cv::imread("Image/Parallel.jpg");
+	//cv::Mat src = cv::imread("Parallel.jpg");
+	//cv::Mat src = cv::imread("Triangle.jpg");
+	cv::Mat src = cv::imread("Square.jpg");
 	cv::Mat gray;
 	cv::cvtColor(src, gray, COLOR_BGR2GRAY);
 	cv::threshold(gray, gray, 200, 255, THRESH_BINARY_INV);
 
-	int step = 15;
+	int step = 5;
+	for (int i = 0; i < 360; i += step)
+	{
+		auto img_rot = rotateImage(gray, i);
+		auto contour = FindLargestContour(img_rot);
+
+		double epsilon = img_rot.rows / 16;
+		std::vector<cv::Point> approxes;
+		cv::approxPolyDP(contour, approxes, epsilon, true);
+
+		for (int i = 0; i < approxes.size(); i++)
+		{
+			approxes[i] = cv::Point(approxes[i].x, img_rot.rows - approxes[i].y);
+		}
+		//TriangleElementInfo tri;
+		SquareElementInfo sqrare;
+		sqrare.Init(approxes, TangramElementInfo::TangramTypeName::TTN_PARA);
+
+		printf("\n %f", sqrare.GetAngle());
+
+		cv::imshow("img_rot", img_rot);
+		cv::waitKey();
+	}
+
+
+	/*int step = 1;
 	for (int i = 0; i < 360; i += step)
 	{
 		auto img_rot = rotateImage(gray, i);
@@ -283,7 +489,7 @@ void TangramDetector::Test()
 			approxes[i] = cv::Point(approxes[i].x, img_rot.rows - approxes[i].y);
 		}
 		ParallelElementInfo parallel;
-		parallel.Init(approxes);
+		parallel.Init(approxes,TangramElementInfo::TangramTypeName::TTN_PARA);
 
 		printf("\n %d %f", parallel.IsFlip(), parallel.GetAngle());
 	}
@@ -307,10 +513,61 @@ void TangramDetector::Test()
 		}
 
 		ParallelElementInfo parallel;
-		parallel.Init(approxes);
+		parallel.Init(approxes,TangramElementInfo::TangramTypeName::TTN_PARA);
 
 		printf("\n %d %f", parallel.IsFlip(), parallel.GetAngle());
+	}*/
+
+
+}
+
+cv::Mat FixWidthResize(cv::Mat src,int fixedWidth)
+{
+	cv::Mat ret;
+	int fixedHeight = fixedWidth * src.rows / src.cols;
+	cv::resize(src, ret, cv::Size(fixedWidth, fixedHeight));
+	return ret;
+}
+
+void TangramDetection()
+{
+	cv::Mat templateFrame = cv::imread("ECat.jpg");
+	templateFrame = FixWidthResize(templateFrame, 512);
+
+
+
+	cv::Mat testImage = cv::imread("ECat.jpg");
+	testImage = FixWidthResize(testImage, 512);
+
+
+	auto cap = cv::VideoCapture(0);
+	TangramDetector detector;
+
+	detector.Init(templateFrame);
+
+
+	bool quit = false;
+	cv::Mat frame;
+
+	int frameCount = 0;
+	while (cap.isOpened()) {
+
+		//real camera
+		bool ret = cap.read(frame);
+
+		//test image
+		//frame = testImage.clone();
+		//bool ret = true;
+
+		if (ret)
+		{
+			detector.Update(frame);
+
+			cv::imshow("frame", frame);
+			if (cv::waitKey(1) == 27)
+			{
+				break;
+			}
+		}
 	}
-
-
 }

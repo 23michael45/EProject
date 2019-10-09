@@ -4,6 +4,9 @@
 
 #include "opencv2/opencv.hpp"
 
+#include <math.h> 
+
+
 
 /************************************************************************
 *函数名：        get_point_angle
@@ -31,5 +34,26 @@
 **************************************************************************/
 double get_point_angle(cv::Point pointO, cv::Point pointA);
 
+
+//Calcucate angle between vector A and B
+//返回角度; return degree
+int get_vector_angle(cv::Point v1,cv::Point v2);
+
 double GetDist(cv::Point p1, cv::Point p2);
+
+cv::Vec3b HSV_U2CV(cv::Vec3b c);
+
+double GetColorDist(cv::Vec3b c1, cv::Vec3b c2);
+
+
+
+cv::Mat GetHsvMask(cv::Mat src, cv::Vec3b color, double dist);
+
+std::vector<cv::Point> FindLargestContour(cv::Mat src);
+
+
+cv::Vec3b MeanColorInMask(cv::Mat frame, std::vector<cv::Point> contour);
+
+void FindTangramContour(cv::Mat frame, cv::Mat draw,bool bGray = false);
+
 #endif // TangramUtility_h__

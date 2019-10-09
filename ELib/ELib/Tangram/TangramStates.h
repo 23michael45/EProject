@@ -22,7 +22,7 @@ public:
 	{
 
 	};
-	virtual void updateWithDeltaTime(double deltaTime) {};
+	virtual void updateWithDeltaTime(double deltaTime);;
 };
 
 class WithBasePieceState : public TangramState
@@ -32,7 +32,7 @@ public:
 	{
 
 	};
-	virtual void updateWithDeltaTime(double deltaTime) {};
+	virtual void updateWithDeltaTime(double deltaTime);;
 };
 
 

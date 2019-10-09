@@ -1,4 +1,5 @@
 #include "Tangram/TangramStates.h"
+#include "Tangram/TangramDetection.h"
 
 TangramState::TangramState(std::shared_ptr<TangramDetector> sp) : State<TangramDetector>::State(sp)
 {
@@ -15,3 +16,11 @@ bool TangramState::isValidNextState(std::shared_ptr<State<TangramDetector>> stat
 	return true;
 }
 
+void NoBasePieceState::updateWithDeltaTime(double deltaTime)
+{
+}
+
+void WithBasePieceState::updateWithDeltaTime(double deltaTime)
+{
+
+}
