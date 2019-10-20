@@ -1,51 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ELibDemo : MonoBehaviour
 {
-    public Camera m_MainCamera;
-    WebCamTexture m_WebCamera;
-    public Renderer m_WebCameraRenderer;
+    public TangramBaseCamera m_TangramCamera;
+    public Texture2D m_TemplateGraphImage;
+    public RawImage m_PaintedImage;
+
+
+
+    Texture2D m_PaintedTexture;
 
     void Start()
     {
-        m_WebCamera = new WebCamTexture();
-        m_WebCamera.Play();
 
-        Vector3 scale = new Vector3(m_WebCamera.width, m_WebCamera.height, 1);
-        m_WebCameraRenderer.gameObject.transform.localScale = scale;
-
-        float screenRate = (float)Screen.width / Screen.height;
-        float cameraRate = (float)m_WebCamera.width / m_WebCamera.height;
-        if (screenRate > cameraRate)
-        {
-
-            m_MainCamera.orthographicSize = (float)m_WebCamera.height / 2;
-
-        }
-        else
-        {
-
-            m_MainCamera.orthographicSize = (float)Screen.height / Screen.width * m_WebCamera.width / 2;
-
-        }
-
-        m_WebCameraRenderer.sharedMaterial.SetTexture("_MainTex", m_WebCamera);
 
         UnityInterface.Init();
-        
+        UnityInterface.SetTemplate(m_TemplateGraphImage);
+
+        m_PaintedTexture = new Texture2D(m_TangramCamera.Width(), m_TangramCamera.Height(), TextureFormat.RGBA32, false); ;
+        m_PaintedImage.texture = m_PaintedTexture;
+
     }
     void OnDestroy()
     {
-
-        m_WebCamera.Stop();
+        
         UnityInterface.Destory();
     }
 
 
     void Update()
     {
-        UnityInterface.FeedFrame(m_WebCamera);
+        UnityInterface.FeedFrame(m_TangramCamera.GetTexture());
+
+        //UnityInterface.PaintTexture(ref m_PaintedTexture);
+        //m_PaintedImage.texture = m_PaintedTexture;
     }
 }

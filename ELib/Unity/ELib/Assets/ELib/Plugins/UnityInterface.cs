@@ -104,14 +104,25 @@ public static class UnityInterface
     static DestroyELib_Delegate DestroyELib;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void SetTemplateGraph_Delegate(IntPtr handle, IntPtr texData, int width, int height);
+    static SetTemplateGraph_Delegate SetTemplateGraph;
+
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void Feed_Delegate(IntPtr handle,IntPtr texData, int width, int height);
     static Feed_Delegate Feed;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate bool GetPaintedTexture_Delegate(IntPtr handle, ref IntPtr texData, ref int width, ref int height);
+    static GetPaintedTexture_Delegate GetPaintedTexture;
 
     static void LoadFunctions()
     {
         GetProcAddress(ref CreateELib, "CreateELib");
         GetProcAddress(ref DestroyELib, "DestroyELib");
         GetProcAddress(ref Feed, "Feed");
+        GetProcAddress(ref SetTemplateGraph, "SetTemplateGraph");
+        GetProcAddress(ref GetPaintedTexture, "GetPaintedTexture");
     }
 #else
     
@@ -124,6 +135,11 @@ public static class UnityInterface
     [DllImport(m_DllName)]
     private static extern void Feed(IntPtr handle,IntPtr texData,int width,int height);
 
+    [DllImport(m_DllName)]
+    private static extern void SetTemplateGraph(IntPtr handle,IntPtr texData,int width,int height);
+    
+    [DllImport(m_DllName)]
+    private static extern bool GetPaintedTexture(IntPtr handle, ref IntPtr texData, ref int width, ref int height);
 
 #endif
 
@@ -141,6 +157,17 @@ public static class UnityInterface
         }
         FreeLibrary();
     }
+
+    public static unsafe void SetTemplate(Texture2D tex)
+    {
+        Color32[] texDataColor = tex.GetPixels32();
+        fixed (Color32* p = (texDataColor))
+        {
+            SetTemplateGraph(m_Handle, (IntPtr)p, tex.width, tex.height);
+        }
+
+    }
+
     public static unsafe void FeedFrame(WebCamTexture tex)
     {
         Color32[] texDataColor = tex.GetPixels32();
@@ -148,6 +175,34 @@ public static class UnityInterface
         {
             Feed(m_Handle, (IntPtr)p,tex.width,tex.height);
         }
+    }
 
+    public static unsafe void PaintTexture(ref Texture2D tex)
+    {
+        IntPtr texBuffer = IntPtr.Zero;
+        int width = 0;
+        int height = 0;
+
+        if(GetPaintedTexture(m_Handle,ref texBuffer,ref width,ref height))
+        {
+            int piexlSize = width * height;
+            Color32[] colors = new Color32[piexlSize];
+            int offset = 0;
+            int vecSize = Marshal.SizeOf(typeof(byte)) * 3;
+
+            for (int i = 0; i < piexlSize; i++)
+            {
+                var c = new Color32();
+                c.r = (byte)Marshal.PtrToStructure(new IntPtr(texBuffer.ToInt64() + offset + 0), typeof(byte));
+                c.g = (byte)Marshal.PtrToStructure(new IntPtr(texBuffer.ToInt64() + offset + 1), typeof(byte));
+                c.b = (byte)Marshal.PtrToStructure(new IntPtr(texBuffer.ToInt64() + offset + 2), typeof(byte));
+                c.a = 255;
+                colors[i] = c;
+                offset += vecSize;
+            }
+
+            tex.SetPixels32(colors);
+            tex.Apply();
+        }
     }
 }
