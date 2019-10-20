@@ -149,31 +149,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\gl3w\gl3w.c" />
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI.cpp" />
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_D3D11.cpp" />
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_D3D12.cpp" />
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_OpenGLCoreES.cpp" />
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_Vulkan.cpp" />
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderingPlugin.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="src\gl3w\gl3w.c" />
+    <ClCompile Include="src\RenderAPI.cpp" />
+    <ClCompile Include="src\RenderAPI_D3D11.cpp" />
+    <ClCompile Include="src\RenderAPI_D3D12.cpp" />
+    <ClCompile Include="src\RenderAPI_OpenGLCoreES.cpp" />
+    <ClCompile Include="src\RenderAPI_Vulkan.cpp" />
+    <ClCompile Include="src\RenderingPlugin.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\gl3w\gl3w.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\gl3w\glcorearb.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\PlatformBase.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphics.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsD3D11.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsD3D12.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsD3D9.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsMetal.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsVulkan.h" />
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityInterface.h" />
+    <ClInclude Include="src\gl3w\gl3w.h" />
+    <ClInclude Include="src\gl3w\glcorearb.h" />
+    <ClInclude Include="src\PlatformBase.h" />
+    <ClInclude Include="src\RenderAPI.h" />
+    <ClInclude Include="src\Unity\IUnityGraphics.h" />
+    <ClInclude Include="src\Unity\IUnityGraphicsD3D11.h" />
+    <ClInclude Include="src\Unity\IUnityGraphicsD3D12.h" />
+    <ClInclude Include="src\Unity\IUnityGraphicsD3D9.h" />
+    <ClInclude Include="src\Unity\IUnityGraphicsMetal.h" />
+    <ClInclude Include="src\Unity\IUnityGraphicsVulkan.h" />
+    <ClInclude Include="src\Unity\IUnityInterface.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_Metal.mm" />
-    <None Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderingPlugin.def" />
+    <None Include="src\RenderAPI_Metal.mm" />
+    <None Include="src\RenderingPlugin.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

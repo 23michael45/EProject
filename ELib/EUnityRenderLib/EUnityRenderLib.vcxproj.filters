@@ -2,26 +2,26 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_D3D11.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_D3D12.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_OpenGLCoreES.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_Vulkan.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderingPlugin.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\gl3w\gl3w.c">
+    <ClCompile Include="src\gl3w\gl3w.c">
       <Filter>src\gl3w</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderAPI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderAPI_D3D11.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderAPI_D3D12.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderAPI_OpenGLCoreES.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderAPI_Vulkan.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderingPlugin.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,45 +36,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\PlatformBase.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphics.h">
-      <Filter>src\Unity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsD3D11.h">
-      <Filter>src\Unity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsD3D12.h">
-      <Filter>src\Unity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsD3D9.h">
-      <Filter>src\Unity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsMetal.h">
-      <Filter>src\Unity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityGraphicsVulkan.h">
-      <Filter>src\Unity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\Unity\IUnityInterface.h">
-      <Filter>src\Unity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\gl3w\gl3w.h">
+    <ClInclude Include="src\gl3w\gl3w.h">
       <Filter>src\gl3w</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\gl3w\glcorearb.h">
+    <ClInclude Include="src\gl3w\glcorearb.h">
       <Filter>src\gl3w</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Unity\IUnityGraphics.h">
+      <Filter>src\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Unity\IUnityGraphicsD3D11.h">
+      <Filter>src\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Unity\IUnityGraphicsD3D12.h">
+      <Filter>src\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Unity\IUnityGraphicsD3D9.h">
+      <Filter>src\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Unity\IUnityGraphicsMetal.h">
+      <Filter>src\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Unity\IUnityGraphicsVulkan.h">
+      <Filter>src\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Unity\IUnityInterface.h">
+      <Filter>src\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlatformBase.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderAPI.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderAPI_Metal.mm">
+    <None Include="src\RenderingPlugin.def">
       <Filter>src</Filter>
     </None>
-    <None Include="..\..\..\..\UnityPlugins\NativeRenderingPlugin\PluginSource\source\RenderingPlugin.def">
+    <None Include="src\RenderAPI_Metal.mm">
       <Filter>src</Filter>
     </None>
   </ItemGroup>
