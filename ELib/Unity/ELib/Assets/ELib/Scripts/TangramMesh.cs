@@ -244,7 +244,7 @@ public class TangramMesh : MonoBehaviour
         MeshFilter mf = gonew.AddComponent<MeshFilter>();
         mf.mesh = m;
 
-        Shader shader = Shader.Find("Unlit/Texture");
+        Shader shader = Shader.Find("Unlit/Transparent");
         r.sharedMaterial = new Material(shader);
         r.sharedMaterial.SetTexture("_MainTex", m_Texture);
 

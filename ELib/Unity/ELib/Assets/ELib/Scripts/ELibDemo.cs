@@ -33,7 +33,7 @@ public class ELibDemo : MonoBehaviour
 
     void Update()
     {
-        UnityInterface.FeedFrame(m_TangramCamera.GetTexture());
+        //UnityInterface.FeedFrame(m_TangramCamera.GetTexture());
 
         //UnityInterface.PaintTexture(ref m_PaintedTexture);
         //m_PaintedImage.texture = m_PaintedTexture;
