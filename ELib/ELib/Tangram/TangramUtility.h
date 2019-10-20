@@ -3,7 +3,7 @@
 
 
 #include "opencv2/opencv.hpp"
-
+#include "Utility/Interface.h"
 #include <math.h> 
 
 
@@ -49,11 +49,11 @@ double GetColorDist(cv::Vec3b c1, cv::Vec3b c2);
 
 cv::Mat GetHsvMask(cv::Mat src, cv::Vec3b color, double dist);
 
-std::vector<cv::Point> FindLargestContour(cv::Mat src);
+CPP_INTERFACE_API std::vector<cv::Point> FindLargestContour(cv::Mat src);
 
 
 cv::Vec3b MeanColorInMask(cv::Mat frame, std::vector<cv::Point> contour);
 
-void FindTangramContour(cv::Mat frame, cv::Mat draw,bool bGray = false);
+CPP_INTERFACE_API void FindTangramContour(cv::Mat frame, cv::Mat draw,bool bGray = false);
 
 #endif // TangramUtility_h__

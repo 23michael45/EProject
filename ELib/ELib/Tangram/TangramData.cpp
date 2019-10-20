@@ -447,7 +447,7 @@ std::vector<std::vector<cv::Point>> TangramGraph::FindTangramContours(cv::Mat hs
 	std::vector<cv::Vec4i> hierarchy;
 
 	//cv::imshow("hsvChannels[0]", hsvChannels[0]);
-	cv::imshow("hsvChannels[1]", hsvChannels[1]);
+	//cv::imshow("hsvChannels[1]", hsvChannels[1]);
 	//cv::imshow("hsvChannels[2]", hsvChannels[2]);
 	//cv::imshow("gray", gray);
 	//cv::waitKey();

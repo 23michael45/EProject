@@ -6,19 +6,21 @@
 #include "Utility/FSM/FSM.h"
 #include "Tangram/TangramStates.h"
 #include <vector>
-class TangramDetector : public std::enable_shared_from_this<TangramDetector>
+CPP_INTERFACE_API class TangramDetector : public std::enable_shared_from_this<TangramDetector>
 {
 
 	friend class WithBasePieceState;
 	friend class NoBasePieceState;
 public:
-	TangramDetector() {};
+	CPP_INTERFACE_API TangramDetector();
 
 
-	bool Init(cv::Mat templateFrame);
+	CPP_INTERFACE_API bool SetTemplateGraph(cv::Mat templateFrame);
 
-	void Update(cv::Mat& frame);
-	void Test();
+	CPP_INTERFACE_API void Update(cv::Mat& frame);
+
+
+	CPP_INTERFACE_API bool GetDrawData(char* &buffer, int &width, int &height);
 private:
 	void DrawResult(std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector);
 
@@ -51,7 +53,4 @@ private:
 };
 
 
-
-
-CPP_INTERFACE_API void TangramDetection();
 #endif // TangramDetection_h__

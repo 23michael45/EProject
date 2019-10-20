@@ -13,6 +13,9 @@
 
 #include <unordered_map>
 #include <memory>
+#include <string>
+#include <sstream>
+#include <iostream>
 
 template <class PT>
 class StateMachine;

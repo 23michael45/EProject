@@ -14,6 +14,9 @@
     <ClCompile Include="Tangram\TangramStates.cpp">
       <Filter>Tangram</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\UnityInterface.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Tangram">
@@ -44,6 +47,9 @@
     </ClInclude>
     <ClInclude Include="Tangram\TangramStates.h">
       <Filter>Tangram</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\UnityInterface.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -7,14 +7,17 @@ using namespace cv;
 
 
 
-bool TangramDetector::Init(cv::Mat templateFrame)
+TangramDetector::TangramDetector()
 {
+
+	m_TypeVector.clear();
 	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_STRI);
 	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_MTRI);
 	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_LTRI);
 	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_SQR);
 	m_TypeVector.emplace_back(TangramElementInfo::TangramType::TT_PARA);
 
+	m_TypeNameVector.clear();
 	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_STRI_1);
 	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_STRI_2);
 	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_MTRI);
@@ -22,27 +25,12 @@ bool TangramDetector::Init(cv::Mat templateFrame)
 	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_LTRI_2);
 	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_SQR);
 	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_PARA);
+}
 
-	//cv::Vec3f TT_STRI_1(282, 51, 90);
-	//cv::Vec3f TT_STRI_2(4, 29, 45);
-	//cv::Vec3f TT_MTRI(15, 88, 97);
-	//cv::Vec3f TT_LTRI_1(158, 74, 54);
-	//cv::Vec3f TT_LTRI_2(4, 88, 87);
-	//cv::Vec3f TT_SQR(54, 83, 100);
-	//cv::Vec3f TT_PARA(207, 87, 89);
-	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_STRI_1] = TT_STRI_1;
-	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_STRI_2] = TT_STRI_2;
-	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_MTRI] = TT_MTRI;
-	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_LTRI_1] = TT_LTRI_1;
-	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_LTRI_2] = TT_LTRI_2;
-	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_SQR] = TT_SQR;
-	//m_HSVMap[TangramElementInfo::TangramTypeName::TTN_PARA] = TT_PARA;
-
-
+bool TangramDetector::SetTemplateGraph(cv::Mat templateFrame)
+{
 	m_spTemplateGraph = std::make_shared<TangramGraph>(m_TypeNameVector);
-
-
-
+	
 	cv::Mat hsv;
 	cv::cvtColor(templateFrame, hsv, cv::COLOR_BGR2HSV);
 
@@ -56,7 +44,6 @@ bool TangramDetector::Init(cv::Mat templateFrame)
 	//m_spStateMachine = std::make_shared<StateMachine<TangramDetector>>();
 	//ADD_STATE(m_spStateMachine, NoBasePieceState)
 	//ADD_STATE(m_spStateMachine, WithBasePieceState)
-
 	//m_spStateMachine->enterState<NoBasePieceState>();
 
 }
@@ -183,6 +170,10 @@ void TangramDetector::DrawResult(std::vector<std::shared_ptr<TangramElementInfo>
 
 bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector)
 {
+	if (m_spCurrentGraph == nullptr)
+	{
+		return false;
+	}
 	//清空记录
 	m_spCurrentGraph->ClearElement();
 	m_spCurBaseElement = nullptr;
@@ -197,7 +188,7 @@ bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared
 	{
 		drawContours(white, contours, i, cv::Scalar(255), cv::FILLED);
 	}
-	imshow("while", white);
+	//imshow("while", white);
 
 	//根据轮廓和颜色HSV，填入数据表
 	m_spCurrentGraph->FillWithContours(contours, hsvFrame, m_HSVMap);
@@ -414,160 +405,23 @@ void TangramDetector::Update(cv::Mat& frame)
 		DrawResult(fitElementsVector);
 	}
 
-	cv::imshow("Draw", m_CurrentDrawFrame);
 	//m_spStateMachine->updateWithDeltaTime();
+}
+
+CPP_INTERFACE_API bool TangramDetector::GetDrawData(char* &buffer, int &width, int &height)
+{
+	if (m_CurrentDrawFrame.rows > 0 && m_CurrentDrawFrame.cols > 0)
+	{
+		buffer = (char*)m_CurrentDrawFrame.data;
+		width = m_CurrentDrawFrame.cols;
+		height = m_CurrentDrawFrame.rows;
+		return true;
+
+
+	}
+	return false;
 }
 
 //----------------------------------------------------------------------------------------------
 
 
-
-
-cv::Mat rotateImage(cv::Mat img, int degree)
-{
-	//旋转中心为图像中心
-	cv::Point center;
-	center.x = float(img.cols / 2.0 + 0.5);
-	center.y = float(img.rows / 2.0 + 0.5);
-	//计算二维旋转的仿射变换矩阵
-	float m[6];
-	cv::Mat M = cv::Mat(2, 3, CV_32F, m);
-	M = cv::getRotationMatrix2D(center, degree, 1);
-	//变换图像，并用黑色填充其余值
-
-	cv::Mat img_rotate;
-	cv::warpAffine(img, img_rotate, M, img.size());
-	return img_rotate;
-}
-void TangramDetector::Test()
-{
-
-	//cv::Mat src = cv::imread("Parallel.jpg");
-	//cv::Mat src = cv::imread("Triangle.jpg");
-	cv::Mat src = cv::imread("Square.jpg");
-	cv::Mat gray;
-	cv::cvtColor(src, gray, COLOR_BGR2GRAY);
-	cv::threshold(gray, gray, 200, 255, THRESH_BINARY_INV);
-
-	int step = 5;
-	for (int i = 0; i < 360; i += step)
-	{
-		auto img_rot = rotateImage(gray, i);
-		auto contour = FindLargestContour(img_rot);
-
-		double epsilon = img_rot.rows / 16;
-		std::vector<cv::Point> approxes;
-		cv::approxPolyDP(contour, approxes, epsilon, true);
-
-		for (int i = 0; i < approxes.size(); i++)
-		{
-			approxes[i] = cv::Point(approxes[i].x, img_rot.rows - approxes[i].y);
-		}
-		//TriangleElementInfo tri;
-		SquareElementInfo sqrare;
-		sqrare.Init(approxes, TangramElementInfo::TangramTypeName::TTN_PARA);
-
-		printf("\n %f", sqrare.GetAngle());
-
-		cv::imshow("img_rot", img_rot);
-		cv::waitKey();
-	}
-
-
-	/*int step = 1;
-	for (int i = 0; i < 360; i += step)
-	{
-		auto img_rot = rotateImage(gray, i);
-		auto contour = FindLargestContour(img_rot);
-
-		double epsilon = img_rot.rows / 16;
-		std::vector<cv::Point> approxes;
-		cv::approxPolyDP(contour, approxes, epsilon, true);
-
-		for (int i = 0; i < approxes.size(); i++)
-		{
-			approxes[i] = cv::Point(approxes[i].x, img_rot.rows - approxes[i].y);
-		}
-		ParallelElementInfo parallel;
-		parallel.Init(approxes,TangramElementInfo::TangramTypeName::TTN_PARA);
-
-		printf("\n %d %f", parallel.IsFlip(), parallel.GetAngle());
-	}
-
-	printf("\n-----------------------------------------------------------------------------------------");
-
-	cv::flip(gray, gray, 0);
-
-	for (int i = 0; i < 360; i += step)
-	{
-		auto img_rot = rotateImage(gray, i);
-		auto contour = FindLargestContour(img_rot);
-
-		double epsilon = img_rot.rows / 16;
-		std::vector<cv::Point> approxes;
-		cv::approxPolyDP(contour, approxes, epsilon, true);
-
-		for (int i = 0; i < approxes.size(); i++)
-		{
-			approxes[i] = cv::Point(approxes[i].x, img_rot.rows - approxes[i].y);
-		}
-
-		ParallelElementInfo parallel;
-		parallel.Init(approxes,TangramElementInfo::TangramTypeName::TTN_PARA);
-
-		printf("\n %d %f", parallel.IsFlip(), parallel.GetAngle());
-	}*/
-
-
-}
-
-cv::Mat FixWidthResize(cv::Mat src,int fixedWidth)
-{
-	cv::Mat ret;
-	int fixedHeight = fixedWidth * src.rows / src.cols;
-	cv::resize(src, ret, cv::Size(fixedWidth, fixedHeight));
-	return ret;
-}
-
-void TangramDetection()
-{
-	cv::Mat templateFrame = cv::imread("ECat.jpg");
-	templateFrame = FixWidthResize(templateFrame, 512);
-
-
-
-	cv::Mat testImage = cv::imread("ECat.jpg");
-	testImage = FixWidthResize(testImage, 512);
-
-
-	auto cap = cv::VideoCapture(0);
-	TangramDetector detector;
-
-	detector.Init(templateFrame);
-
-
-	bool quit = false;
-	cv::Mat frame;
-
-	int frameCount = 0;
-	while (cap.isOpened()) {
-
-		//real camera
-		bool ret = cap.read(frame);
-
-		//test image
-		//frame = testImage.clone();
-		//bool ret = true;
-
-		if (ret)
-		{
-			detector.Update(frame);
-
-			cv::imshow("frame", frame);
-			if (cv::waitKey(1) == 27)
-			{
-				break;
-			}
-		}
-	}
-}
