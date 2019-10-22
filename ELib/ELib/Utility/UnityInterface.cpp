@@ -53,7 +53,7 @@ void FeedEvent(int id)
 	}
 }
 
-UNITY_EXPORT_INTERFACE_API char* CreateELib()
+UNITY_INTERFACE_EXPORT char* CreateELib()
 {
 	auto tid = std::this_thread::get_id();
 
@@ -63,7 +63,7 @@ UNITY_EXPORT_INTERFACE_API char* CreateELib()
 	return (char*)pTD;
 }
 
-UNITY_EXPORT_INTERFACE_API void DestroyELib(char* handle)
+UNITY_INTERFACE_EXPORT void DestroyELib(char* handle)
 {
 	TangramDetector* pTD = (TangramDetector*)handle;
 	if (pTD)
@@ -75,7 +75,7 @@ UNITY_EXPORT_INTERFACE_API void DestroyELib(char* handle)
 	UninitNativeGraphics();
 }
 
-UNITY_EXPORT_INTERFACE_API UnityRenderingEvent GetNativeRenderingEvent(char* handle, char* name)
+UNITY_INTERFACE_EXPORT UnityRenderingEvent GetNativeRenderingEvent(char* handle, char* name)
 {
 	TangramDetector* pTD = (TangramDetector*)handle;
 	if (pTD)
@@ -89,7 +89,7 @@ UNITY_EXPORT_INTERFACE_API UnityRenderingEvent GetNativeRenderingEvent(char* han
 	return nullptr;
 }
 
-UNITY_EXPORT_INTERFACE_API void Feed(char* handle, char* texData,int width,int height)
+UNITY_INTERFACE_EXPORT void Feed(char* handle, char* texData,int width,int height)
 {
 	TangramDetector* pTD = (TangramDetector*)handle;
 	if (pTD)
@@ -105,7 +105,7 @@ UNITY_EXPORT_INTERFACE_API void Feed(char* handle, char* texData,int width,int h
 	}
 }
 
-UNITY_EXPORT_INTERFACE_API char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height)
+UNITY_INTERFACE_EXPORT char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height)
 {
 	auto tid = std::this_thread::get_id();
 
@@ -124,7 +124,7 @@ UNITY_EXPORT_INTERFACE_API char* FeedNativeTexture(char* handle, void* textureHa
 	return nullptr;
 }
 
-UNITY_EXPORT_INTERFACE_API void SetTemplateGraph(char* handle, char* texData, int width, int height)
+UNITY_INTERFACE_EXPORT void SetTemplateGraph(char* handle, char* texData, int width, int height)
 {
 	TangramDetector* pTD = (TangramDetector*)handle;
 	if (pTD && texData)
@@ -138,7 +138,7 @@ UNITY_EXPORT_INTERFACE_API void SetTemplateGraph(char* handle, char* texData, in
 	}
 }
 
-UNITY_EXPORT_INTERFACE_API char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height)
+UNITY_INTERFACE_EXPORT char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height)
 {
 	TangramDetector* pTD = (TangramDetector*)handle;
 	if (pTD && textureHandle)
