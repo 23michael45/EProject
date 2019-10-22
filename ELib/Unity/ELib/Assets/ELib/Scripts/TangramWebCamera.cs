@@ -16,7 +16,7 @@ public class TangramWebCamera : TangramBaseCamera
     {
         return m_WebCameraTexture.height;
     }
-    void Start()
+    void Awake()
     {
         m_WebCameraTexture = new WebCamTexture();
         m_WebCameraTexture.Play();

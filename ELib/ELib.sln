@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ELib", "ELib\ELib.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ETest", "ETest\ETest.vcxproj", "{E4F2D0D3-CB3D-4F12-B2CB-D7AC7FE32470}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EUnityRenderLib", "EUnityRenderLib\EUnityRenderLib.vcxproj", "{C150D162-FB91-4F74-97F9-39BC2A7B4AD1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnityNativeLoader", "UnityNativeLoader\UnityNativeLoader.vcxproj", "{C150D162-FB91-4F74-97F9-39BC2A7B4AD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

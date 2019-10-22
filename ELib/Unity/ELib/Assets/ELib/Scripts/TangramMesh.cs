@@ -5,6 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class TangramMesh : MonoBehaviour
 {
+    public bool m_bCreateMesh = false;
     public enum TangramTypeName
     {
         TTN_STRI_1,
@@ -173,45 +174,18 @@ public class TangramMesh : MonoBehaviour
         tris[4] = 2;
         tris[5] = 3;
     }
+    
+
+
 
     [ExecuteInEditMode]
-    private void Start()
+    private void Update()
     {
-        Clear();
-
-
-
-
-        Vector3[] vertices;
-        Vector2[] uvs;
-        int[] tris;
-        
-        LTri1(out vertices, out uvs, out tris);
-        CreateMesh(TangramTypeName.TTN_LTRI_1,vertices,uvs,tris);
-
-
-        LTri2(out vertices, out uvs, out tris);
-        CreateMesh(TangramTypeName.TTN_LTRI_2, vertices, uvs, tris);
-
-
-        MTri(out vertices, out uvs, out tris);
-        CreateMesh(TangramTypeName.TTN_MTRI, vertices, uvs, tris);
-
-
-        STri1(out vertices, out uvs, out tris);
-        CreateMesh(TangramTypeName.TTN_STRI_1, vertices, uvs, tris);
-
-
-        STri2(out vertices, out uvs, out tris);
-        CreateMesh(TangramTypeName.TTN_STRI_2, vertices, uvs, tris);
-
-
-        Square(out vertices, out uvs, out tris);
-        CreateMesh(TangramTypeName.TTN_SQR, vertices, uvs, tris);
-
-
-        Para(out vertices, out uvs, out tris);
-        CreateMesh(TangramTypeName.TTN_PARA, vertices, uvs, tris);
+        if(m_bCreateMesh)
+        {
+            m_bCreateMesh = false;
+            Create();
+        }
     }
 
     void Clear()
@@ -248,5 +222,40 @@ public class TangramMesh : MonoBehaviour
         r.sharedMaterial = new Material(shader);
         r.sharedMaterial.SetTexture("_MainTex", m_Texture);
 
+    }
+
+    void Create()
+    {
+        Clear();
+        Vector3[] vertices;
+        Vector2[] uvs;
+        int[] tris;
+
+        LTri1(out vertices, out uvs, out tris);
+        CreateMesh(TangramTypeName.TTN_LTRI_1, vertices, uvs, tris);
+
+
+        LTri2(out vertices, out uvs, out tris);
+        CreateMesh(TangramTypeName.TTN_LTRI_2, vertices, uvs, tris);
+
+
+        MTri(out vertices, out uvs, out tris);
+        CreateMesh(TangramTypeName.TTN_MTRI, vertices, uvs, tris);
+
+
+        STri1(out vertices, out uvs, out tris);
+        CreateMesh(TangramTypeName.TTN_STRI_1, vertices, uvs, tris);
+
+
+        STri2(out vertices, out uvs, out tris);
+        CreateMesh(TangramTypeName.TTN_STRI_2, vertices, uvs, tris);
+
+
+        Square(out vertices, out uvs, out tris);
+        CreateMesh(TangramTypeName.TTN_SQR, vertices, uvs, tris);
+
+
+        Para(out vertices, out uvs, out tris);
+        CreateMesh(TangramTypeName.TTN_PARA, vertices, uvs, tris);
     }
 }

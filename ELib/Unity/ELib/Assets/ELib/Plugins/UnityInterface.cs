@@ -9,7 +9,8 @@ using UnityEngine;
 public static class UnityInterface
 {
     static IntPtr m_PluginDll;
-    const string m_DllName = "ELib.dll";
+    const string m_ELibName = "ELib";
+    const string m_UnityNativeLoaderName = "UnityNativeLoader";//without .dll
     static IntPtr m_Handle;
 #if UNITY_EDITOR
     static class NativeMethods
@@ -47,8 +48,8 @@ public static class UnityInterface
         UnityEngine.Debug.Log("sCurrentPath:" + sCurrentPath);
 
         UnityEngine.Debug.Log("Load Library");
-        string sPluginPath = Path.Combine(Application.dataPath, @"ELib/Plugins");
-        string dllPath = Path.Combine(sPluginPath, m_DllName);
+        string sPluginPath = Path.Combine(Application.dataPath, @"ELib/Plugins/x86_64");
+        string dllPath = Path.Combine(sPluginPath, m_ELibName + ".dll");
         if (File.Exists(dllPath))
         {
             Directory.SetCurrentDirectory(sPluginPath);
@@ -62,6 +63,7 @@ public static class UnityInterface
             {
                 UnityEngine.Debug.LogError("Load Library Failed : " + Marshal.GetLastWin32Error().ToString());
             }
+
 
             Directory.SetCurrentDirectory(sCurrentPath);
         }
@@ -103,6 +105,11 @@ public static class UnityInterface
     private delegate void DestroyELib_Delegate(IntPtr handle);
     static DestroyELib_Delegate DestroyELib;
 
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate IntPtr GetNativeRenderingEvent_Delegate(IntPtr handle,[MarshalAs(UnmanagedType.LPStr)]string eventName);
+    static GetNativeRenderingEvent_Delegate GetNativeRenderingEvent;
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void SetTemplateGraph_Delegate(IntPtr handle, IntPtr texData, int width, int height);
     static SetTemplateGraph_Delegate SetTemplateGraph;
@@ -113,41 +120,67 @@ public static class UnityInterface
     static Feed_Delegate Feed;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate bool GetPaintedTexture_Delegate(IntPtr handle, ref IntPtr texData, ref int width, ref int height);
-    static GetPaintedTexture_Delegate GetPaintedTexture;
+    [return: MarshalAs(UnmanagedType.LPStr)]
+    private delegate string FeedNativeTexture_Delegate(IntPtr handle, IntPtr nativeTexPtr, int width, int height);
+    static FeedNativeTexture_Delegate FeedNativeTexture;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.LPStr)]
+    private delegate string SetPaintedTexture_Delegate(IntPtr handle, IntPtr nativeTexPtr, int width, int height);
+    static SetPaintedTexture_Delegate　SetPaintedTexture;
 
     static void LoadFunctions()
     {
         GetProcAddress(ref CreateELib, "CreateELib");
         GetProcAddress(ref DestroyELib, "DestroyELib");
+        GetProcAddress(ref GetNativeRenderingEvent, "GetNativeRenderingEvent"); 
+
         GetProcAddress(ref Feed, "Feed");
+        GetProcAddress(ref FeedNativeTexture, "FeedNativeTexture");
+
         GetProcAddress(ref SetTemplateGraph, "SetTemplateGraph");
-        GetProcAddress(ref GetPaintedTexture, "GetPaintedTexture");
+        GetProcAddress(ref SetPaintedTexture, "SetPaintedTexture");
     }
 #else
     
-    [DllImport(m_DllName)]
+    [DllImport(m_ELibName)]
     private static extern IntPtr CreateELib();
     
-    [DllImport(m_DllName)]
+    [DllImport(m_ELibName)]
     private static extern void DestroyELib(IntPtr handle);
 
-    [DllImport(m_DllName)]
+    [DllImport(m_ELibName)]
+    private static extern IntPtr GetNativeRenderingEvent(IntPtr handle,[MarshalAs(UnmanagedType.LPStr)]string eventName);
+    
+    [DllImport(m_ELibName)]
     private static extern void Feed(IntPtr handle,IntPtr texData,int width,int height);
+    
+    [DllImport(m_ELibName)]
+    [return: MarshalAs(UnmanagedType.LPStr)]
+    private static extern string FeedNativeTexture(IntPtr handle,IntPtr nativeTexPtr,int width,int height);
 
-    [DllImport(m_DllName)]
+    [DllImport(m_ELibName)]
     private static extern void SetTemplateGraph(IntPtr handle,IntPtr texData,int width,int height);
     
-    [DllImport(m_DllName)]
-    private static extern bool GetPaintedTexture(IntPtr handle, ref IntPtr texData, ref int width, ref int height);
+    [DllImport(m_ELibName)]
+    [return: MarshalAs(UnmanagedType.LPStr)]
+    private static extern string SetPaintedTexture(IntPtr handle, IntPtr nativeTexPtr, int width, int height);
 
 #endif
 
+    [DllImport(m_UnityNativeLoaderName)]
+    private static extern void UnityNativeLoader();
 
     public static void Init()
     {
+        //pass unity interfaces to native
+        UnityNativeLoader();
+
         LoadLibrary();
         m_Handle = CreateELib();
+
+
+        IssueEvent("InitGraphicEvent");
     }
     public static void Destory()
     {
@@ -156,6 +189,14 @@ public static class UnityInterface
             DestroyELib(m_Handle);
         }
         FreeLibrary();
+    }
+    public static void IssueEvent(string eventName)
+    {
+        var func = UnityInterface.GetNativeRenderingEvent(m_Handle,eventName);
+        if (func != IntPtr.Zero)
+        {
+            GL.IssuePluginEvent(func, 1);
+        }
     }
 
     public static unsafe void SetTemplate(Texture2D tex)
@@ -177,32 +218,22 @@ public static class UnityInterface
         }
     }
 
-    public static unsafe void PaintTexture(ref Texture2D tex)
+    public static unsafe string FeedTexture(Texture tex)
     {
-        IntPtr texBuffer = IntPtr.Zero;
-        int width = 0;
-        int height = 0;
+        IntPtr nativeTexPtr = tex.GetNativeTexturePtr();
+        UnityEngine.Debug.Log(nativeTexPtr);
 
-        if(GetPaintedTexture(m_Handle,ref texBuffer,ref width,ref height))
-        {
-            int piexlSize = width * height;
-            Color32[] colors = new Color32[piexlSize];
-            int offset = 0;
-            int vecSize = Marshal.SizeOf(typeof(byte)) * 3;
+        string eventName = "";
+        eventName = FeedNativeTexture(m_Handle, nativeTexPtr, tex.width, tex.height);
 
-            for (int i = 0; i < piexlSize; i++)
-            {
-                var c = new Color32();
-                c.r = (byte)Marshal.PtrToStructure(new IntPtr(texBuffer.ToInt64() + offset + 0), typeof(byte));
-                c.g = (byte)Marshal.PtrToStructure(new IntPtr(texBuffer.ToInt64() + offset + 1), typeof(byte));
-                c.b = (byte)Marshal.PtrToStructure(new IntPtr(texBuffer.ToInt64() + offset + 2), typeof(byte));
-                c.a = 255;
-                colors[i] = c;
-                offset += vecSize;
-            }
+        return eventName;
+    }
 
-            tex.SetPixels32(colors);
-            tex.Apply();
-        }
+    public static unsafe string SetResultTexture(Texture2D tex)
+    {
+        IntPtr nativeTexPtr = tex.GetNativeTexturePtr();
+        string eventName = SetPaintedTexture(m_Handle, nativeTexPtr, tex.width, tex.height);
+
+        return eventName;
     }
 }

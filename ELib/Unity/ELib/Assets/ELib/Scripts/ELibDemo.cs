@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,35 +8,50 @@ public class ELibDemo : MonoBehaviour
 {
     public TangramBaseCamera m_TangramCamera;
     public Texture2D m_TemplateGraphImage;
-    public RawImage m_PaintedImage;
 
-
-
+    public Renderer m_ResultRenderer;
     Texture2D m_PaintedTexture;
+
 
     void Start()
     {
-
-
+        m_TangramCamera.gameObject.SetActive(true);
+        
         UnityInterface.Init();
         UnityInterface.SetTemplate(m_TemplateGraphImage);
 
         m_PaintedTexture = new Texture2D(m_TangramCamera.Width(), m_TangramCamera.Height(), TextureFormat.RGBA32, false); ;
-        m_PaintedImage.texture = m_PaintedTexture;
 
+        m_ResultRenderer.sharedMaterial = new Material(Shader.Find("Unlit/Texture"));
+        m_ResultRenderer.sharedMaterial.SetTexture("_MainTex", m_PaintedTexture);
+        Vector3 scale = new Vector3(m_TangramCamera.Width(), m_TangramCamera.Height(), 1);
+        m_ResultRenderer.gameObject.transform.localScale = scale / 2;
+        m_ResultRenderer.gameObject.transform.localPosition = new Vector3(m_TangramCamera.Width() / 4, -m_TangramCamera.Height() / 4, -1);
+
+        StartCoroutine(Feed());
     }
     void OnDestroy()
     {
-        
+        StopAllCoroutines();
         UnityInterface.Destory();
     }
 
-
-    void Update()
+    
+    IEnumerator Feed()
     {
-        //UnityInterface.FeedFrame(m_TangramCamera.GetTexture());
+        string ret = UnityInterface.SetResultTexture(m_PaintedTexture);
+        if (!string.IsNullOrEmpty(ret))
+        {
 
-        //UnityInterface.PaintTexture(ref m_PaintedTexture);
-        //m_PaintedImage.texture = m_PaintedTexture;
+            string eventName = UnityInterface.FeedTexture(m_TangramCamera.GetTexture());
+            if (!string.IsNullOrEmpty(eventName))
+            {
+                while (true)
+                {
+                    yield return new WaitForEndOfFrame();
+                    UnityInterface.IssueEvent(eventName);
+                }
+            }
+        }
     }
 }

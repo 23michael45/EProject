@@ -4,16 +4,26 @@ using UnityEngine;
 
 public class TangramRenderCamera : TangramBaseCamera
 {
+    public Camera m_MainCamera;
     RenderTexture m_RenderTexture;
+    public int m_Width;
+    public int m_Height;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        
+        m_RenderTexture = new RenderTexture(m_Width, m_Height, 8);
+        m_MainCamera.targetTexture = m_RenderTexture;
     }
-
-    // Update is called once per frame
-    void Update()
+    public override int Width()
     {
-        
+        return m_RenderTexture.width;
+    }
+    public override int Height()
+    {
+        return m_RenderTexture.height;
+    }
+    public override Texture GetTexture()
+    {
+        return m_RenderTexture;
     }
 }
