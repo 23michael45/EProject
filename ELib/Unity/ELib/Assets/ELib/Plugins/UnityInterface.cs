@@ -9,8 +9,18 @@ using UnityEngine;
 public static class UnityInterface
 {
     static IntPtr m_PluginDll;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+
+    const string m_ELibName = "native-lib";//not libnative-lib.so or libnative-lib
+    const string m_UnityNativeLoaderName = "native-lib";//without .dll
+  
+#elif UNITY_IOS
+
+#else
     const string m_ELibName = "ELib";
     const string m_UnityNativeLoaderName = "UnityNativeLoader";//without .dll
+#endif
     static IntPtr m_Handle;
 #if UNITY_EDITOR
     static class NativeMethods
@@ -176,7 +186,9 @@ public static class UnityInterface
         //pass unity interfaces to native
         UnityNativeLoader();
 
+#if UNITY_EDITOR
         LoadLibrary();
+#endif
         m_Handle = CreateELib();
 
 
@@ -188,7 +200,9 @@ public static class UnityInterface
         {
             DestroyELib(m_Handle);
         }
+#if UNITY_EDITOR
         FreeLibrary();
+#endif
     }
     public static void IssueEvent(string eventName)
     {

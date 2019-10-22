@@ -378,7 +378,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44064e21540e62c49b403a9d5c5b2a30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_TangramCamera: {fileID: 2034468997}
+  m_TangramCamera: {fileID: 500065558}
   m_TemplateGraphImage: {fileID: 2800000, guid: 2b755142e9c60284aa2b671b8272c34d,
     type: 3}
   m_ResultRenderer: {fileID: 1384222617}
@@ -2340,8 +2340,8 @@ Camera:
   m_GameObject: {fileID: 1895367489}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
