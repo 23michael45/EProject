@@ -17,6 +17,27 @@
     <ClCompile Include="Utility\UnityInterface.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="NativeGraphics\gl3w\gl3w.c">
+      <Filter>NativeGraphics\gl3w</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeGraphics\RenderAPI.cpp">
+      <Filter>NativeGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeGraphics\RenderAPI_D3D11.cpp">
+      <Filter>NativeGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeGraphics\RenderAPI_D3D12.cpp">
+      <Filter>NativeGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeGraphics\RenderAPI_OpenGLCoreES.cpp">
+      <Filter>NativeGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeGraphics\RenderAPI_Vulkan.cpp">
+      <Filter>NativeGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeGraphics\NativeGraphics.cpp">
+      <Filter>NativeGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Tangram">
@@ -27,6 +48,12 @@
     </Filter>
     <Filter Include="Utility\FSM">
       <UniqueIdentifier>{9aefe713-0e3a-4419-bc14-5812d20d40ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NativeGraphics">
+      <UniqueIdentifier>{e8409ce6-32cd-4f37-abe5-41697fb9159a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NativeGraphics\gl3w">
+      <UniqueIdentifier>{fadbc329-9ffc-4352-bbca-c21daa84b802}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -51,5 +78,22 @@
     <ClInclude Include="Utility\UnityInterface.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="NativeGraphics\gl3w\gl3w.h">
+      <Filter>NativeGraphics\gl3w</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeGraphics\gl3w\glcorearb.h">
+      <Filter>NativeGraphics\gl3w</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeGraphics\RenderAPI.h">
+      <Filter>NativeGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeGraphics\NativeGraphics.h">
+      <Filter>NativeGraphics</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NativeGraphics\RenderAPI_Metal.mm">
+      <Filter>NativeGraphics</Filter>
+    </None>
   </ItemGroup>
 </Project>

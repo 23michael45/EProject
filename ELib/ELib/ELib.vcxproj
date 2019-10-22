@@ -115,14 +115,15 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)../Elib;$(ProjectDir)../ETest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../Elib;$(ProjectDir)../ETest;$(ProjectDir)../UnityNativeLoader/Unity;$(ProjectDir)../UnityNativeLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(ProjectDir)../x64/Debug/UnityNativeLoader.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y  ..\x64\Debug\ELib.dll  ..\Unity\ELib\Assets\ELib\Plugins\ /s /i</Command>
+      <Command>xcopy /Y  ..\x64\Debug\ELib.dll  ..\Unity\ELib\Assets\ELib\Plugins\x86_64\ /s /i</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -158,20 +159,28 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)../Elib;$(ProjectDir)../ETest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../Elib;$(ProjectDir)../ETest;$(ProjectDir)../UnityNativeLoader/Unity;$(ProjectDir)../UnityNativeLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(ProjectDir)../x64/Release/UnityNativeLoader.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y  ..\x64\Release\ELib.dll  ..\Unity\ELib\Assets\ELib\Plugins\ /s /i</Command>
+      <Command>xcopy /Y  ..\x64\Release\ELib.dll  ..\Unity\ELib\Assets\ELib\Plugins\x86_64\ /s /i</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="NativeGraphics\gl3w\gl3w.c" />
+    <ClCompile Include="NativeGraphics\NativeGraphics.cpp" />
+    <ClCompile Include="NativeGraphics\RenderAPI.cpp" />
+    <ClCompile Include="NativeGraphics\RenderAPI_D3D11.cpp" />
+    <ClCompile Include="NativeGraphics\RenderAPI_D3D12.cpp" />
+    <ClCompile Include="NativeGraphics\RenderAPI_OpenGLCoreES.cpp" />
+    <ClCompile Include="NativeGraphics\RenderAPI_Vulkan.cpp" />
     <ClCompile Include="Tangram\TangramData.cpp" />
     <ClCompile Include="Tangram\TangramDetection.cpp" />
     <ClCompile Include="Tangram\TangramStates.cpp" />
@@ -179,6 +188,10 @@
     <ClCompile Include="Utility\UnityInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NativeGraphics\gl3w\gl3w.h" />
+    <ClInclude Include="NativeGraphics\gl3w\glcorearb.h" />
+    <ClInclude Include="NativeGraphics\NativeGraphics.h" />
+    <ClInclude Include="NativeGraphics\RenderAPI.h" />
     <ClInclude Include="Tangram\TangramData.h" />
     <ClInclude Include="Tangram\TangramDetection.h" />
     <ClInclude Include="Tangram\TangramStates.h" />
@@ -186,6 +199,9 @@
     <ClInclude Include="Utility\FSM\FSM.h" />
     <ClInclude Include="Utility\Interface.h" />
     <ClInclude Include="Utility\UnityInterface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NativeGraphics\RenderAPI_Metal.mm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
