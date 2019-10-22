@@ -408,18 +408,24 @@ void TangramDetector::Update(cv::Mat& frame)
 	//m_spStateMachine->updateWithDeltaTime();
 }
 
-CPP_INTERFACE_API bool TangramDetector::GetDrawData(char* &buffer, int &width, int &height)
+CPP_INTERFACE_API bool TangramDetector::GetDrawData(char* &buffer, int &width, int &height,int &channel)
 {
 	if (m_CurrentDrawFrame.rows > 0 && m_CurrentDrawFrame.cols > 0)
 	{
 		buffer = (char*)m_CurrentDrawFrame.data;
 		width = m_CurrentDrawFrame.cols;
 		height = m_CurrentDrawFrame.rows;
+		channel = m_CurrentDrawFrame.channels();
 		return true;
 
 
 	}
 	return false;
+}
+
+CPP_INTERFACE_API cv::Mat& TangramDetector::GetDrawData()
+{
+	return m_CurrentDrawFrame;
 }
 
 //----------------------------------------------------------------------------------------------

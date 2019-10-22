@@ -20,7 +20,8 @@ public:
 	CPP_INTERFACE_API void Update(cv::Mat& frame);
 
 
-	CPP_INTERFACE_API bool GetDrawData(char* &buffer, int &width, int &height);
+	CPP_INTERFACE_API bool GetDrawData(char* &buffer, int &width, int &height, int &channel);
+	CPP_INTERFACE_API cv::Mat& GetDrawData();
 private:
 	void DrawResult(std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector);
 

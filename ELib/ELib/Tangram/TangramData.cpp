@@ -472,7 +472,7 @@ std::vector<std::vector<cv::Point>> TangramGraph::FindTangramContours(cv::Mat hs
 	{
 		auto contour = tangramContours[i];
 
-		double epsilon = gray.rows / 16;
+		double epsilon = gray.rows / 32;
 		std::vector<cv::Point> approxes;
 		cv::approxPolyDP(contour, approxes, epsilon, true);
 

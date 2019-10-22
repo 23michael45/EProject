@@ -203,7 +203,7 @@ void FindTangramContour(cv::Mat frame,cv::Mat draw,bool bGray)
 		drawContours(draw, contours, i, cv::Scalar(255, 0, 255), 2, cv::LINE_AA);
 	}
 
-	cv::imshow("draw", draw);
-	cv::imshow("gray", gray);
-	cv::waitKey();
+	//cv::imshow("draw", draw);
+	//cv::imshow("gray", gray);
+	//cv::waitKey();
 }
