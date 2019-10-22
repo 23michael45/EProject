@@ -28,7 +28,7 @@ public class ELibDemo : MonoBehaviour
         m_ResultRenderer.gameObject.transform.localScale = scale / 2;
         m_ResultRenderer.gameObject.transform.localPosition = new Vector3(m_TangramCamera.Width() / 4, -m_TangramCamera.Height() / 4, -1);
 
-        //StartCoroutine(Feed());
+        StartCoroutine(Feed());
     }
     void OnDestroy()
     {
