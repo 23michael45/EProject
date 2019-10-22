@@ -8,14 +8,23 @@ cmake_minimum_required(VERSION 3.4.1)
 #该变量为真时会创建完整版本的Makefile
 set(CMAKE_VERBOSE_MAKEFILE on)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D SUPPORT_OPENGL_ES")
+
+
 #定义变量ocvlibs使后面的命令可以使用定位具体的库文件
 set(opencvlibs "D:/DevelopProj/OpenCV/opencv-4.1.0-android-sdk/OpenCV-android-sdk/sdk/native/libs")
+set(ProjectDir "D:/DevelopProj/Education/EProject/ELib/")
 
 #调用头文件的具体路径
 include_directories(D:/DevelopProj/OpenCV/opencv-4.1.0-android-sdk/OpenCV-android-sdk/sdk/native/jni/include
-        D:/DevelopProj/Education/EProject/ELib/ELib
-        D:/DevelopProj/Education/EProject/ELib/Elib/Utility
-        D:/DevelopProj/Education/EProject/ELib/Elib/Tangram)
+        ${ProjectDir}Elib
+        ${ProjectDir}Elib/Utility
+        ${ProjectDir}Elib/Tangram
+        ${ProjectDir}Elib/NativeGraphics
+        ${ProjectDir}UnityNativeLoader
+        ${ProjectDir}UnityNativeLoader/Unity
+
+        )
 
 #增加我们的动态库
 add_library(libopencv_java4 SHARED IMPORTED)
@@ -29,20 +38,28 @@ set_target_properties(libopencv_java4 PROPERTIES IMPORTED_LOCATION
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-add_library( # Sets the name of the library.
-             native-lib
+add_library(# Sets the name of the library.
+            native-lib
 
-             # Sets the library as a shared library.
-             SHARED
+            # Sets the library as a shared library.
+            SHARED
 
-             # Provides a relative path to your source file(s).
-             native-lib.cpp
+            # Provides a relative path to your source file(s).
+            native-lib.cpp
 
-             #Tangram lib
-             D:/DevelopProj/Education/EProject/ELib/ELib/Tangram/TangramData.cpp
-             D:/DevelopProj/Education/EProject/ELib/ELib/Tangram/TangramDetection.cpp
-             D:/DevelopProj/Education/EProject/ELib/ELib/Tangram/TangramStates.cpp
-             D:/DevelopProj/Education/EProject/ELib/ELib/Tangram/TangramUtility.cpp)
+            # Native Renderer
+            ${ProjectDir}Elib/NativeGraphics/NativeGraphics.cpp
+            ${ProjectDir}Elib/NativeGraphics/RenderAPI.cpp
+            ${ProjectDir}Elib/NativeGraphics/RenderAPI_OpenGLCoreES.cpp
+
+            ${ProjectDir}UnityNativeLoader/UnityNativeLoader.cpp
+
+            #Tangram lib
+            ${ProjectDir}Elib/Tangram/TangramData.cpp
+            ${ProjectDir}Elib/Tangram/TangramDetection.cpp
+            ${ProjectDir}Elib/Tangram/TangramStates.cpp
+            ${ProjectDir}Elib/Tangram/TangramUtility.cpp
+        )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -62,9 +79,11 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-                       native-lib
-                       libopencv_java4
+                        native-lib
+                        libopencv_java4
+                        # library for opengl unified
+                        GLESv2
 
-                       # Links the target library to the log library
-                       # included in the NDK.
-                       ${log-lib} )
+                        # Links the target library to the log library
+                        # included in the NDK.
+                        ${log-lib} )
