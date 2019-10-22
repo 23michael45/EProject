@@ -316,6 +316,8 @@ void RenderAPI_OpenGLCoreES::GetTextureBuffer(void* bufferHandle,int textureWidt
 	GLuint gltex = (GLuint)(size_t)(bufferHandle);
 	glBindTexture(GL_TEXTURE_2D, gltex);
 
+#if !SUPPORT_OPENGL_ES
+
 	GLint wtex, htex;
 	GLint fmt;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &wtex);
@@ -341,7 +343,15 @@ void RenderAPI_OpenGLCoreES::GetTextureBuffer(void* bufferHandle,int textureWidt
 	if (srcLen == len && len > 0)
 	{
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataPtr);
+
+		
 	}
+#else
+	int srcLen = textureWidth * textureHeight * channel;
+
+	glReadPixels(0,0, textureWidth , textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, dataPtr);
+
+#endif
 }
 void RenderAPI_OpenGLCoreES::GetVertextBuffer(void* bufferHandle, void* &dataPtr, int& len)
 {
