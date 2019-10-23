@@ -40,10 +40,13 @@ public class ELibDemo : MonoBehaviour
     IEnumerator Feed()
     {
         string ret = UnityInterface.SetResultTexture(m_PaintedTexture);
+
+        Debug.Log("Feed SetResultTexture :" + ret);
         if (!string.IsNullOrEmpty(ret))
         {
 
             string eventName = UnityInterface.FeedTexture(m_TangramCamera.GetTexture());
+            Debug.Log("Feed FeedTexture :" + eventName);
             if (!string.IsNullOrEmpty(eventName))
             {
                 while (true)
