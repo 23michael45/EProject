@@ -188,7 +188,6 @@ bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared
 	m_spCurBaseElement = nullptr;
 	m_spTemplateBaseElement = nullptr;
 
-
 	//È¡ÐÎ×´ÂÖÀª
 	auto contours = m_spCurrentGraph->FindTangramContours(hsvFrame);
 

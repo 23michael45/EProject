@@ -56,4 +56,11 @@ cv::Vec3b MeanColorInMask(cv::Mat frame, std::vector<cv::Point> contour);
 
 CPP_INTERFACE_API void FindTangramContour(cv::Mat frame, cv::Mat draw,bool bGray = false);
 
+
+void LineDetection(cv::Mat& img, cv::Mat& draw);
+
+#if _WINDOWS
+void FastLineDetection(cv::Mat& img, cv::Mat& draw);
+#endif
+
 #endif // TangramUtility_h__

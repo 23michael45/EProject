@@ -13,6 +13,11 @@ public class TangramBaseCamera : MonoBehaviour
         return 0;
     }
 
+    public virtual int Channel()
+    {
+        return 0;
+    }
+
     public virtual Texture GetTexture()
     {
         return null;

@@ -12,7 +12,21 @@ public class ELibDemo : MonoBehaviour
     public Renderer m_ResultRenderer;
     Texture2D m_PaintedTexture;
 
+    public int Channel(Texture2D tex)
+    {
+        int channel = 1;
+        if (tex.format == TextureFormat.RGBA32)
+        {
+            channel = 4;
+        }
+        else if (tex.format == TextureFormat.RGB24)
+        {
+            channel = 3;
 
+        }
+
+        return channel;
+    }
     void Start()
     {
         m_TangramCamera.gameObject.SetActive(true);
@@ -39,13 +53,12 @@ public class ELibDemo : MonoBehaviour
     
     IEnumerator Feed()
     {
-        string ret = UnityInterface.SetResultTexture(m_PaintedTexture);
+        string ret = UnityInterface.SetResultTexture(m_PaintedTexture, Channel(m_PaintedTexture));
 
         Debug.Log("Feed SetResultTexture :" + ret);
         if (!string.IsNullOrEmpty(ret))
         {
-
-            string eventName = UnityInterface.FeedTexture(m_TangramCamera.GetTexture());
+            string eventName = UnityInterface.FeedTexture(m_TangramCamera.GetTexture(), m_TangramCamera.Channel());
             Debug.Log("Feed FeedTexture :" + eventName);
             if (!string.IsNullOrEmpty(eventName))
             {

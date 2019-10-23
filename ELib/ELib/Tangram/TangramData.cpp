@@ -439,9 +439,45 @@ std::vector<std::vector<cv::Point>> TangramGraph::FindTangramContours(cv::Mat hs
 	cv::split(hsvFrame, hsvChannels);
 
 
-	cv::Mat gray;
-	cv::threshold(hsvChannels[1], gray, 64, 255, cv::THRESH_BINARY_INV);
+	cv::Mat grayS,grayV;
+	cv::threshold(hsvChannels[1], grayS, 64, 255, cv::THRESH_BINARY_INV);
 
+	//cv::threshold(hsvChannels[2], grayV, 235, 255, cv::THRESH_BINARY);
+	//grayV = 255 - grayV;
+
+	//cv::Size morphSize(5, 5);
+	//cv::Mat morph(morphSize, CV_8U, cv::Scalar(1));
+
+	//cv::Canny(grayV, grayV, 100, 250);
+	//std::vector<cv::Vec2f>lines;
+	//HoughLines(grayV, lines, 100, CV_PI / 180, 80);
+
+	//cv::Mat draw;
+	//draw = grayV.clone();
+	////LineDetection(grayV, draw);
+	//cv::Rect ccomp;
+	//cv::floodFill(draw, cv::Point(1, 1), cv::Scalar(255, 255, 255), &ccomp, cv::Scalar(20, 20, 20), cv::Scalar(20, 20, 20));
+
+
+	//for (int i = 0 ; i< lines.size();i++)
+	//{
+	//	float rho = lines[i][0], theta = lines[i][1];
+	//	cv::Point pt1, pt2;
+	//	double a = cos(theta), b = sin(theta);
+	//	double x0 = a * rho, y0 = b * rho;
+	//	pt1.x = cvRound(x0 + 1000 * (-b));
+	//	pt1.y = cvRound(y0 + 1000 * (a));
+	//	pt2.x = cvRound(x0 - 1000 * (-b));
+	//	pt2.y = cvRound(y0 - 1000 * (a));
+	//	cv::line(draw, pt1, pt2, cv::Scalar(55, 100, 195), 1, cv::LINE_AA);
+	//}
+
+
+	//cv::erode(grayV, grayV, morph);
+	//cv::dilate(grayV, grayV, morph);
+
+	//cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, morph);
+	//cv::morphologyEx(mask, mask, cv::MORPH_OPEN, morph);
 
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -449,12 +485,14 @@ std::vector<std::vector<cv::Point>> TangramGraph::FindTangramContours(cv::Mat hs
 	//cv::imshow("hsvChannels[0]", hsvChannels[0]);
 	//cv::imshow("hsvChannels[1]", hsvChannels[1]);
 	//cv::imshow("hsvChannels[2]", hsvChannels[2]);
-	//cv::imshow("gray", gray);
+	//cv::imshow("grayS", grayS);
+	//cv::imshow("grayV", grayV);
+	//cv::imshow("draw", draw);
 	//cv::waitKey();
 
-	findContours(gray, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+	findContours(grayS, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
-	double frameArea = gray.cols * gray.rows;
+	double frameArea = grayS.cols * grayS.rows;
 
 	std::vector<std::vector<cv::Point>> tangramContours;
 	for (int i = 0; i < contours.size(); i++)
@@ -472,7 +510,7 @@ std::vector<std::vector<cv::Point>> TangramGraph::FindTangramContours(cv::Mat hs
 	{
 		auto contour = tangramContours[i];
 
-		double epsilon = gray.rows / 32;
+		double epsilon = grayS.rows / 32;
 		std::vector<cv::Point> approxes;
 		cv::approxPolyDP(contour, approxes, epsilon, true);
 

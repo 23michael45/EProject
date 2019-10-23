@@ -120,7 +120,7 @@ void TangramDetection()
 
 
 
-	cv::Mat testImage = cv::imread("ECat.jpg");
+	cv::Mat testImage = cv::imread("CatWithWood.png");
 	testImage = FixWidthResize(testImage, 512);
 
 
@@ -137,11 +137,11 @@ void TangramDetection()
 	while (cap.isOpened()) {
 
 		//real camera
-		bool ret = cap.read(frame);
+		//bool ret = cap.read(frame);
 
 		//test image
-		//frame = testImage.clone();
-		//bool ret = true;
+		frame = testImage.clone();
+		bool ret = true;
 
 		if (ret)
 		{
@@ -245,7 +245,7 @@ void TestMoments()
 
 int main()
 {
-	//TangramDetection();
-	TestMoments();
+	TangramDetection();
+	//TestMoments();
 }
 

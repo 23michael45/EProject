@@ -209,3 +209,54 @@ void FindTangramContour(cv::Mat frame,cv::Mat draw,bool bGray)
 	//cv::imshow("gray", gray);
 	//cv::waitKey();
 }
+
+
+#include "opencv2/imgproc.hpp"
+void LineDetection(cv::Mat& img, cv::Mat& draw)
+{
+	// Create LSD detector
+	cv::Ptr<cv::LineSegmentDetector> lsd = cv::createLineSegmentDetector();
+	std::vector<cv::Vec4f> lines_lsd;
+
+	lsd->detect(img, lines_lsd);
+	lsd->drawSegments(draw, lines_lsd);
+}
+
+#if _WINDOWS
+#include "opencv2/ximgproc.hpp"
+void FastLineDetection(cv::Mat& img,cv::Mat& draw)
+{
+
+
+	int    length_threshold = 10;
+	float  distance_threshold = 1.41421356f;
+	double canny_th1 = 50.0;
+	double canny_th2 = 50.0;
+	int    canny_aperture_size = 3;
+	bool   do_merge = false;
+	cv::Ptr<cv::ximgproc::FastLineDetector> fld = cv::ximgproc::createFastLineDetector(
+		length_threshold,
+		distance_threshold,
+		canny_th1,
+		canny_th2,
+		canny_aperture_size,
+		do_merge);
+	std::vector<cv::Vec4f> lines_fld;
+	// Because of some CPU's power strategy, it seems that the first running of
+	// an algorithm takes much longer. So here we run both of the algorithmes 10
+	// times to see each algorithm's processing time with sufficiently warmed-up
+	// CPU performance.
+	for (int run_count = 0; run_count < 10; run_count++) {
+
+		int64 start = cv::getTickCount();
+		double freq = cv::getTickFrequency();
+		// Detect the lines with FLD
+		fld->detect(img, lines_fld);
+		double duration_ms = double(cv::getTickCount() - start) * 1000 / freq;
+	}
+
+	cv::Mat line_image_fld(draw);
+	fld->drawSegments(line_image_fld, lines_fld);
+	cv::imshow("FLD result", line_image_fld);
+}
+#endif

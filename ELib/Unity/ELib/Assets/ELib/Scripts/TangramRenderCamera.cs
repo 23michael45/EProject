@@ -22,6 +22,10 @@ public class TangramRenderCamera : TangramBaseCamera
     {
         return m_RenderTexture.height;
     }
+    public override int Channel()
+    {
+        return 4;
+    }
     public override Texture GetTexture()
     {
         return m_RenderTexture;

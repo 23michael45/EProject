@@ -121,22 +121,22 @@ public static class UnityInterface
     static GetNativeRenderingEvent_Delegate GetNativeRenderingEvent;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate void SetTemplateGraph_Delegate(IntPtr handle, IntPtr texData, int width, int height);
+    private delegate void SetTemplateGraph_Delegate(IntPtr handle, IntPtr texData, int width, int height, int channel);
     static SetTemplateGraph_Delegate SetTemplateGraph;
 
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate void Feed_Delegate(IntPtr handle,IntPtr texData, int width, int height);
+    private delegate void Feed_Delegate(IntPtr handle,IntPtr texData, int width, int height, int channel);
     static Feed_Delegate Feed;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.LPStr)]
-    private delegate string FeedNativeTexture_Delegate(IntPtr handle, IntPtr nativeTexPtr, int width, int height);
+    private delegate string FeedNativeTexture_Delegate(IntPtr handle, IntPtr nativeTexPtr, int width, int height, int channel);
     static FeedNativeTexture_Delegate FeedNativeTexture;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.LPStr)]
-    private delegate string SetPaintedTexture_Delegate(IntPtr handle, IntPtr nativeTexPtr, int width, int height);
+    private delegate string SetPaintedTexture_Delegate(IntPtr handle, IntPtr nativeTexPtr, int width, int height, int channel);
     static SetPaintedTexture_Delegate　SetPaintedTexture;
 
     static void LoadFunctions()
@@ -163,18 +163,18 @@ public static class UnityInterface
     private static extern IntPtr GetNativeRenderingEvent(IntPtr handle,[MarshalAs(UnmanagedType.LPStr)]string eventName);
     
     [DllImport(m_ELibName)]
-    private static extern void Feed(IntPtr handle,IntPtr texData,int width,int height);
+    private static extern void Feed(IntPtr handle,IntPtr texData,int width,int height,int channel);
     
     [DllImport(m_ELibName)]
     [return: MarshalAs(UnmanagedType.LPStr)]
-    private static extern string FeedNativeTexture(IntPtr handle,IntPtr nativeTexPtr,int width,int height);
+    private static extern string FeedNativeTexture(IntPtr handle,IntPtr nativeTexPtr,int width,int height,int channel,int channel);
 
     [DllImport(m_ELibName)]
-    private static extern void SetTemplateGraph(IntPtr handle,IntPtr texData,int width,int height);
+    private static extern void SetTemplateGraph(IntPtr handle,IntPtr texData,int width,int height,int channel);
     
     [DllImport(m_ELibName)]
     [return: MarshalAs(UnmanagedType.LPStr)]
-    private static extern string SetPaintedTexture(IntPtr handle, IntPtr nativeTexPtr, int width, int height);
+    private static extern string SetPaintedTexture(IntPtr handle, IntPtr nativeTexPtr, int width, int height,int channel);
 
 #endif
 
@@ -215,38 +215,39 @@ public static class UnityInterface
 
     public static unsafe void SetTemplate(Texture2D tex)
     {
+        //whatever channel is 3 or 4 ,getpixels32 will get a 4 channel data
         Color32[] texDataColor = tex.GetPixels32();
         fixed (Color32* p = (texDataColor))
         {
-            SetTemplateGraph(m_Handle, (IntPtr)p, tex.width, tex.height);
+            SetTemplateGraph(m_Handle, (IntPtr)p, tex.width, tex.height, 4);
         }
 
     }
 
-    public static unsafe void FeedFrame(WebCamTexture tex)
+    public static unsafe void FeedFrame(WebCamTexture tex, int channel)
     {
         Color32[] texDataColor = tex.GetPixels32();
         fixed (Color32* p = (texDataColor))
         {
-            Feed(m_Handle, (IntPtr)p,tex.width,tex.height);
+            Feed(m_Handle, (IntPtr)p,tex.width,tex.height, channel);
         }
     }
 
-    public static unsafe string FeedTexture(Texture tex)
+    public static unsafe string FeedTexture(Texture tex, int channel)
     {
         IntPtr nativeTexPtr = tex.GetNativeTexturePtr();
         UnityEngine.Debug.Log(nativeTexPtr);
 
         string eventName = "";
-        eventName = FeedNativeTexture(m_Handle, nativeTexPtr, tex.width, tex.height);
+        eventName = FeedNativeTexture(m_Handle, nativeTexPtr, tex.width, tex.height, channel);
 
         return eventName;
     }
 
-    public static unsafe string SetResultTexture(Texture2D tex)
+    public static unsafe string SetResultTexture(Texture2D tex, int channel)
     {
         IntPtr nativeTexPtr = tex.GetNativeTexturePtr();
-        string eventName = SetPaintedTexture(m_Handle, nativeTexPtr, tex.width, tex.height);
+        string eventName = SetPaintedTexture(m_Handle, nativeTexPtr, tex.width, tex.height, channel);
 
         return eventName;
     }

@@ -11,12 +11,12 @@ extern "C" {
 
 	UNITY_INTERFACE_EXPORT  UnityRenderingEvent GetNativeRenderingEvent(char* handle, char* name);
 
-	UNITY_INTERFACE_EXPORT  void SetTemplateGraph(char* handle, char* texData, int width, int height);
+	UNITY_INTERFACE_EXPORT  void SetTemplateGraph(char* handle, char* texData, int width, int height, int channel);
 
-	UNITY_INTERFACE_EXPORT  void Feed(char* handle, char* texData, int width, int height);
-	UNITY_INTERFACE_EXPORT  char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height);
+	UNITY_INTERFACE_EXPORT  void Feed(char* handle, char* texData, int width, int height, int channel);
+	UNITY_INTERFACE_EXPORT  char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height, int channel);
 
-	UNITY_INTERFACE_EXPORT  char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height);
+	UNITY_INTERFACE_EXPORT  char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height, int channel);
 }
 
 #endif // UnityInterface_h__

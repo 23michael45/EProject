@@ -16,6 +16,11 @@ public class TangramWebCamera : TangramBaseCamera
     {
         return m_WebCameraTexture.height;
     }
+    public override int Channel()
+    {
+        return 4;
+    }
+
     void Awake()
     {
         m_WebCameraTexture = new WebCamTexture();

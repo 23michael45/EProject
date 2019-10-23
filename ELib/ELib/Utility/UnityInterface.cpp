@@ -31,21 +31,50 @@ void FeedEvent(int id)
 		TangramDetector* pTD = static_cast<TangramDetector*>(spEvent->param);
 		if (pTD != nullptr)
 		{
-			cv::Mat textureUnity(spNativeTexture->mHeight, spNativeTexture->mWidth, CV_8UC4, spNativeTexture->mDataPtr);
-			cv::Mat rgba;
-			cv::flip(textureUnity, rgba, 0);
-
 			cv::Mat bgr;
-			cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
+
+			if (spNativeTexture->mChannel == 4)
+			{
+				cv::Mat textureUnity(spNativeTexture->mHeight, spNativeTexture->mWidth, CV_8UC4, spNativeTexture->mDataPtr);
+				cv::Mat rgba;
+				cv::flip(textureUnity, rgba, 0);
+				cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
+			}
+			else if (spNativeTexture->mChannel == 3)
+			{
+				cv::Mat textureUnity(spNativeTexture->mHeight, spNativeTexture->mWidth, CV_8UC3, spNativeTexture->mDataPtr);
+				cv::Mat rgb;
+				cv::flip(textureUnity, rgb, 0);
+				cv::cvtColor(rgb, bgr, cv::COLOR_RGB2BGR);
+			}
+
 
 			pTD->Update(bgr);
 
 
 			cv::Mat& drawMat = pTD->GetDrawData();
-			cv::Mat drawRgba;
-			cv::cvtColor(drawMat, drawRgba, cv::COLOR_BGR2RGBA);
-			cv::flip(drawRgba, drawRgba, 0);
-			ModifyNativeTexture("PaintedTexture", drawRgba.data);
+			
+			std::shared_ptr<NativeTexture> spPaintedTex;
+			GetNativeTexture("PaintedTexture", spPaintedTex);
+			if (spPaintedTex)
+			{
+				if (spPaintedTex->mChannel == 4)
+				{
+					cv::Mat drawRgba;
+					cv::cvtColor(drawMat, drawRgba, cv::COLOR_BGR2RGBA);
+					cv::flip(drawRgba, drawRgba, 0);
+					ModifyNativeTexture("PaintedTexture", drawRgba.data);
+
+				}
+				else if (spPaintedTex->mChannel ==3)
+				{
+					cv::Mat drawRgb;
+					cv::cvtColor(drawMat, drawRgb, cv::COLOR_BGR2RGB);
+					cv::flip(drawRgb, drawRgb, 0);
+					ModifyNativeTexture("PaintedTexture", drawRgb.data);
+				}
+			}
+
 
 			//cv::Mat draw(height,width,CV_8UC3,buffer);
 			//cv::imshow("draw", draw);
@@ -90,7 +119,7 @@ extern "C" {
 		return nullptr;
 	}
 
-	UNITY_INTERFACE_EXPORT void Feed(char* handle, char* texData, int width, int height)
+	UNITY_INTERFACE_EXPORT void Feed(char* handle, char* texData, int width, int height, int channel)
 	{
 		TangramDetector* pTD = (TangramDetector*)handle;
 		if (pTD)
@@ -106,7 +135,7 @@ extern "C" {
 		}
 	}
 
-	UNITY_INTERFACE_EXPORT char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height)
+	UNITY_INTERFACE_EXPORT char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height,int channel)
 	{
 		auto tid = std::this_thread::get_id();
 
@@ -123,28 +152,41 @@ extern "C" {
 			strcpy(eventName, "FeedTexture");
 
 			AddNativeRenderingEvent(eventName, FeedEvent, pTD);
-			AddNativeTexture(eventName, textureHandle, width, height, 4);
+			AddNativeTexture(eventName, textureHandle, width, height, channel);
 
 			return eventName;
 		}
 		return nullptr;
 	}
 
-	UNITY_INTERFACE_EXPORT void SetTemplateGraph(char* handle, char* texData, int width, int height)
+	UNITY_INTERFACE_EXPORT void SetTemplateGraph(char* handle, char* texData, int width, int height, int channel)
 	{
 		TangramDetector* pTD = (TangramDetector*)handle;
 		if (pTD && texData)
 		{
-			cv::Mat textureUnity(height, width, CV_8UC4, texData);
-			cv::Mat rgba;
-			cv::flip(textureUnity, rgba, 0);
 			cv::Mat bgr;
-			cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
+			if (channel == 4)
+			{
+				cv::Mat textureUnity(height, width, CV_8UC4, texData);
+				cv::Mat rgba;
+				cv::flip(textureUnity, rgba, 0);
+				cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
+			}
+			else if (channel == 3)
+			{
+				cv::Mat textureUnity(height, width, CV_8UC3, texData);
+				cv::Mat rgb;
+				cv::flip(textureUnity, rgb, 0);
+				cv::cvtColor(rgb, bgr, cv::COLOR_RGB2BGR);
+			}
+			//cv::imshow("bgr", bgr);
+			//cv::waitKey();
+
 			pTD->SetTemplateGraph(bgr);
 		}
 	}
 
-	UNITY_INTERFACE_EXPORT char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height)
+	UNITY_INTERFACE_EXPORT char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height, int channel)
 	{
 		TangramDetector* pTD = (TangramDetector*)handle;
 		if (pTD && textureHandle)
@@ -158,7 +200,7 @@ extern "C" {
 #endif
 			strcpy(eventName, "PaintedTexture");
 
-			AddNativeTexture(eventName, textureHandle, width, height, 4);
+			AddNativeTexture(eventName, textureHandle, width, height, channel);
 
 			return eventName;
 		}

@@ -362,14 +362,17 @@ void RenderAPI_OpenGLCoreES::GetTextureBuffer(void* bufferHandle,int textureWidt
 	//glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_HEIGHT, &htex);
 	//glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
 
+	int format = GL_RGBA;
 	int chl = 1;
 	if (fmt == GL_RGBA8)
 	{
 		chl = 4;
+		format = GL_RGBA;
 	}
 	else if (fmt == GL_RGB8)
 	{
 		chl = 3;
+		format = GL_RGB;
 	}
 
 	int srcLen = textureWidth * textureHeight * channel;
@@ -377,7 +380,7 @@ void RenderAPI_OpenGLCoreES::GetTextureBuffer(void* bufferHandle,int textureWidt
 
 	if (srcLen == len && len > 0)
 	{
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataPtr);
+		glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_BYTE, dataPtr);
 
 		
 	}
