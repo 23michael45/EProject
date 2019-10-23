@@ -1,9 +1,24 @@
 #include "RenderAPI.h"
 #include "PlatformBase.h"
-
+#include <stdio.h>
 // OpenGL Core profile (desktop) or OpenGL ES (mobile) implementation of RenderAPI.
 // Supports several flavors: Core, ES2, ES3
+#if UNITY_ANDROID
+#include <android/log.h>
+#define TAG "ELib Native" // 这个是自定义的LOG的标识   
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,TAG ,__VA_ARGS__) // 定义LOGD类型   
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG ,__VA_ARGS__) // 定义LOGI类型   
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN,TAG ,__VA_ARGS__) // 定义LOGW类型   
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,TAG ,__VA_ARGS__) // 定义LOGE类型   
+#define LOGF(...) __android_log_print(ANDROID_LOG_FATAL,TAG ,__VA_ARGS__) // 定义LOGF类型 
+#else 
+#define LOGD(...) printf(__VA_ARGS__) // 定义LOGD类型   
+#define LOGI(...) printf(__VA_ARGS__) // 定义LOGI类型   
+#define LOGW(...) printf(__VA_ARGS__) // 定义LOGW类型   
+#define LOGE(...) printf(__VA_ARGS__) // 定义LOGE类型   
+#define LOGF(...) printf(__VA_ARGS__) // 定义LOGF类型 
 
+#endif
 
 #if SUPPORT_OPENGL_UNIFIED
 
@@ -61,6 +76,13 @@ private:
 	GLuint m_VertexBuffer;
 	int m_UniformWorldMatrix;
 	int m_UniformProjMatrix;
+
+#if SUPPORT_OPENGL_ES
+	GLuint m_FrameBuffer;
+
+	// create a renderbuffer object to store depth info
+	GLuint m_RenderBuffer;
+#endif
 };
 
 
@@ -183,6 +205,18 @@ void RenderAPI_OpenGLCoreES::CreateResources()
 	glBufferData(GL_ARRAY_BUFFER, 1024, NULL, GL_STREAM_DRAW);
 
 	assert(glGetError() == GL_NO_ERROR);
+
+
+
+
+#if SUPPORT_OPENGL_ES
+	glGenFramebuffers(1, &m_FrameBuffer);
+
+	//glGenRenderbuffers(1, &m_RenderBuffer);
+	//glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffer);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
+#endif
 }
 
 
@@ -258,6 +292,7 @@ void RenderAPI_OpenGLCoreES::DrawSimpleTriangles(const float worldMatrix[16], in
 		glDeleteVertexArrays(1, &m_VertexArray);
 	}
 #	endif
+
 }
 
 
@@ -314,10 +349,10 @@ void RenderAPI_OpenGLCoreES::EndModifyVertexBuffer(void* bufferHandle)
 void RenderAPI_OpenGLCoreES::GetTextureBuffer(void* bufferHandle,int textureWidth, int textureHeight, int channel,void* dataPtr)
 {
 	GLuint gltex = (GLuint)(size_t)(bufferHandle);
-	glBindTexture(GL_TEXTURE_2D, gltex);
 
 #if !SUPPORT_OPENGL_ES
 
+	glBindTexture(GL_TEXTURE_2D, gltex);
 	GLint wtex, htex;
 	GLint fmt;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &wtex);
@@ -346,12 +381,25 @@ void RenderAPI_OpenGLCoreES::GetTextureBuffer(void* bufferHandle,int textureWidt
 
 		
 	}
+	glBindTexture(GL_TEXTURE_2D, 0);
 #else
-	int srcLen = textureWidth * textureHeight * channel;
 
-	glReadPixels(0,0, textureWidth , textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, dataPtr);
 
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER,        // 1. fbo target: GL_FRAMEBUFFER 
+		GL_COLOR_ATTACHMENT0,  // 2. attachment point
+		GL_TEXTURE_2D,         // 3. tex target: GL_TEXTURE_2D
+		gltex,					// 4. tex ID
+		0);                    // 5. mipmap level: 0(base)
+
+
+	glReadPixels(0, 0, textureWidth, textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, dataPtr);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #endif
+
+	/*char* cPtr = (char*)dataPtr;
+	LOGD("GetTextureBuffer ptr: %d   %d  %d %d %d %d", textureWidth, textureHeight, cPtr[0], cPtr[1], cPtr[10], cPtr[11]);*/
 }
 void RenderAPI_OpenGLCoreES::GetVertextBuffer(void* bufferHandle, void* &dataPtr, int& len)
 {

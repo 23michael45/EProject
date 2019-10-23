@@ -8,6 +8,7 @@
 #if _WINDOWS
 #include <Windows.h>
 #endif
+
 void InitGraphicEvent(int id)
 {
 	std::lock_guard<std::mutex> lock(GetNativeRenderingEventMutex());
@@ -52,104 +53,115 @@ void FeedEvent(int id)
 		}
 	}
 }
-
-UNITY_INTERFACE_EXPORT char* CreateELib()
-{
-	auto tid = std::this_thread::get_id();
-
-	AddNativeRenderingEvent("InitGraphicEvent", InitGraphicEvent, nullptr);
-
-	TangramDetector* pTD = new TangramDetector();
-	return (char*)pTD;
-}
-
-UNITY_INTERFACE_EXPORT void DestroyELib(char* handle)
-{
-	TangramDetector* pTD = (TangramDetector*)handle;
-	if (pTD)
+extern "C" {
+	UNITY_INTERFACE_EXPORT char* CreateELib()
 	{
-		delete pTD;
-		printf("Delete TangramDetector");
+		auto tid = std::this_thread::get_id();
+
+		AddNativeRenderingEvent("InitGraphicEvent", InitGraphicEvent, nullptr);
+
+		TangramDetector* pTD = new TangramDetector();
+		return (char*)pTD;
 	}
 
-	UninitNativeGraphics();
-}
-
-UNITY_INTERFACE_EXPORT UnityRenderingEvent GetNativeRenderingEvent(char* handle, char* name)
-{
-	TangramDetector* pTD = (TangramDetector*)handle;
-	if (pTD)
+	UNITY_INTERFACE_EXPORT void DestroyELib(char* handle)
 	{
-		std::shared_ptr<NativeRenderEvent> spEvent;
-		GetNativeRenderingEvent(name, spEvent);
+		TangramDetector* pTD = (TangramDetector*)handle;
+		if (pTD)
+		{
+			delete pTD;
+			printf("Delete TangramDetector");
+		}
 
-		return spEvent->func;
-
+		UninitNativeGraphics();
 	}
-	return nullptr;
-}
 
-UNITY_INTERFACE_EXPORT void Feed(char* handle, char* texData,int width,int height)
-{
-	TangramDetector* pTD = (TangramDetector*)handle;
-	if (pTD)
+	UNITY_INTERFACE_EXPORT UnityRenderingEvent GetNativeRenderingEvent(char* handle, char* name)
 	{
-		cv::Mat textureUnity(height, width, CV_8UC4, texData);
-		cv::Mat rgba;
-		cv::flip(textureUnity, rgba, 0);
+		TangramDetector* pTD = (TangramDetector*)handle;
+		if (pTD)
+		{
+			std::shared_ptr<NativeRenderEvent> spEvent;
+			GetNativeRenderingEvent(name, spEvent);
 
-		cv::Mat bgr;
-		cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
+			return spEvent->func;
 
-		pTD->Update(bgr);
+		}
+		return nullptr;
 	}
-}
 
-UNITY_INTERFACE_EXPORT char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height)
-{
-	auto tid = std::this_thread::get_id();
-
-	TangramDetector* pTD = (TangramDetector*)handle;
-	if (pTD && textureHandle)
+	UNITY_INTERFACE_EXPORT void Feed(char* handle, char* texData, int width, int height)
 	{
-		int len = 32;
-		char* eventName = (char*)CoTaskMemAlloc(len);
-		strcpy_s(eventName, len,"FeedTexture");
+		TangramDetector* pTD = (TangramDetector*)handle;
+		if (pTD)
+		{
+			cv::Mat textureUnity(height, width, CV_8UC4, texData);
+			cv::Mat rgba;
+			cv::flip(textureUnity, rgba, 0);
 
-		AddNativeRenderingEvent(eventName, FeedEvent,pTD);
-		AddNativeTexture(eventName, textureHandle, width, height, 4);
+			cv::Mat bgr;
+			cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
 
-		return eventName;
+			pTD->Update(bgr);
+		}
 	}
-	return nullptr;
-}
 
-UNITY_INTERFACE_EXPORT void SetTemplateGraph(char* handle, char* texData, int width, int height)
-{
-	TangramDetector* pTD = (TangramDetector*)handle;
-	if (pTD && texData)
+	UNITY_INTERFACE_EXPORT char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height)
 	{
-		cv::Mat textureUnity(height, width, CV_8UC4, texData);
-		cv::Mat rgba;
-		cv::flip(textureUnity, rgba, 0);
-		cv::Mat bgr;
-		cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
-		pTD->SetTemplateGraph(bgr);
-	}
-}
+		auto tid = std::this_thread::get_id();
 
-UNITY_INTERFACE_EXPORT char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height)
-{
-	TangramDetector* pTD = (TangramDetector*)handle;
-	if (pTD && textureHandle)
+		TangramDetector* pTD = (TangramDetector*)handle;
+		if (pTD && textureHandle)
+		{
+			int len = 32;
+#if _WINDOWS
+			char* eventName = (char*)CoTaskMemAlloc(len);
+#else
+
+			char* eventName = new char(len);
+#endif
+			strcpy(eventName, "FeedTexture");
+
+			AddNativeRenderingEvent(eventName, FeedEvent, pTD);
+			AddNativeTexture(eventName, textureHandle, width, height, 4);
+
+			return eventName;
+		}
+		return nullptr;
+	}
+
+	UNITY_INTERFACE_EXPORT void SetTemplateGraph(char* handle, char* texData, int width, int height)
 	{
-		int len = 32;
-		char* eventName = (char*)CoTaskMemAlloc(len);
-		strcpy_s(eventName, len, "PaintedTexture");
-
-		AddNativeTexture(eventName, textureHandle, width, height, 4);
-
-		return eventName;
+		TangramDetector* pTD = (TangramDetector*)handle;
+		if (pTD && texData)
+		{
+			cv::Mat textureUnity(height, width, CV_8UC4, texData);
+			cv::Mat rgba;
+			cv::flip(textureUnity, rgba, 0);
+			cv::Mat bgr;
+			cv::cvtColor(rgba, bgr, cv::COLOR_RGBA2BGR);
+			pTD->SetTemplateGraph(bgr);
+		}
 	}
-	return nullptr;
+
+	UNITY_INTERFACE_EXPORT char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height)
+	{
+		TangramDetector* pTD = (TangramDetector*)handle;
+		if (pTD && textureHandle)
+		{
+			int len = 32; 
+#if _WINDOWS
+			char* eventName = (char*)CoTaskMemAlloc(len);
+#else
+
+			char* eventName = new char(len);
+#endif
+			strcpy(eventName, "PaintedTexture");
+
+			AddNativeTexture(eventName, textureHandle, width, height, 4);
+
+			return eventName;
+		}
+		return nullptr;
+	}
 }

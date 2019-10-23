@@ -27,12 +27,21 @@ TangramDetector::TangramDetector()
 	m_TypeNameVector.emplace_back(TangramElementInfo::TangramTypeName::TTN_PARA);
 }
 
+CPP_INTERFACE_API TangramDetector::~TangramDetector()
+{
+	//cv::destroyWindow("white");
+}
+
 bool TangramDetector::SetTemplateGraph(cv::Mat templateFrame)
 {
 	m_spTemplateGraph = std::make_shared<TangramGraph>(m_TypeNameVector);
 	
 	cv::Mat hsv;
 	cv::cvtColor(templateFrame, hsv, cv::COLOR_BGR2HSV);
+
+	m_ThreshAngle = 15;
+	double divideThresh = 24;
+	m_ThreshCenterDist = (double)max(templateFrame.cols, templateFrame.rows) / divideThresh;
 
 	if(m_spTemplateGraph->InitAsTemplate(hsv,m_HSVMap))
 	{
@@ -188,15 +197,11 @@ bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared
 	{
 		drawContours(white, contours, i, cv::Scalar(255), cv::FILLED);
 	}
-	//imshow("while", white);
+	//imshow("white", white);
+	//cv::waitKey(1);
 
 	//根据轮廓和颜色HSV，填入数据表
 	m_spCurrentGraph->FillWithContours(contours, hsvFrame, m_HSVMap);
-
-
-
-	float minAngleThresh = 5;
-	float minCenterDist = 9999;
 
 
 	double minDistToCenter = 9999;
@@ -239,30 +244,39 @@ bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared
 	if (m_spCurBaseElement != nullptr && m_spTemplateBaseElement != nullptr)
 	{
 
-		//比较形状，同形状可能有两块，要全比对一次
+		//遍历所有类型(5种形状）,比较形状，同形状可能有两块，要全比对一次
 		for (auto typeIter = m_TypeVector.begin(); typeIter != m_TypeVector.end(); typeIter++)
 		{
 			std::map<std::shared_ptr<TangramElementInfo>, std::vector< std::shared_ptr<TangramElementInfo>>> typeVecMap;
 			std::vector<std::shared_ptr<TangramElementInfo>> curVec;
 			std::vector<std::shared_ptr<TangramElementInfo>> tempVec;
 
+			
+
+			//当前遍历形状 与 基础块 相同
 			if (m_spCurBaseElement->mType == *typeIter)
 			{
+				//这三种块只有一块，所以PASS
 				if (*typeIter == TangramElementInfo::TangramType::TT_MTRI ||
 					*typeIter == TangramElementInfo::TangramType::TT_SQR ||
 					*typeIter == TangramElementInfo::TangramType::TT_PARA)
 				{
 					continue;
 				}
+				//其它两种块，每种有不同颜色的两块
 				else
 				{
 					auto curVecSrc = m_spCurrentGraph->FindInfosByType(*typeIter);
 					auto tempVecSrc = m_spTemplateGraph->FindInfosByType(*typeIter);
 					
+					//遍历当前帧检测到的块，取出的MAP是 当前块->要比较的模板块数组   可以一个当前块，要与1个或2个模板块比较
 					for (auto sp : curVecSrc)
 					{
+						//如果不是基准块
 						if (sp != m_spCurBaseElement)
 						{
+							
+							//遍历模板图中的块
 							for (auto sptemp : tempVecSrc)
 							{
 
@@ -277,6 +291,7 @@ bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared
 					}
 				}
 			}
+			//如果当前块与基础块不同
 			else
 			{
 				curVec = m_spCurrentGraph->FindInfosByType(*typeIter);
@@ -284,7 +299,7 @@ bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared
 				typeVecMap = GetPairFromTypeVec(curVec, tempVec);
 			}
 
-
+			//此处得到的typeVecMap  ，是当前块（可能是基础块或非基础块） 与 要比较的模板块数据   对应表
 
 
 
@@ -317,16 +332,24 @@ bool TangramDetector::FindBaseWithEdge(cv::Mat hsvFrame, std::vector<std::shared
 						//摄相头与模板图中，当前块的角度差
 						double angDist;
 						PiecesAngleDist(spCurInfo, spTemplateInfo, angDist);
-						double threshAngle = 20;
-						double threshCenter = 20;
+
 
 						double TempDivCurRate = spTemplateInfo->mPerimeter / spCurInfo->mPerimeter;
 
 						double centerDist = GetDist(centerCurDist * TempDivCurRate, centerTemplateDist);
 
 
+						//如果是小三角形，阈值要放大，不然不好识别
+						double angRate = 1.0f;
+						double distRate = 1.0f;
+						if (spCurInfo->mType == TangramElementInfo::TangramType::TT_STRI)
+						{
+							angRate = 1.5f;
+							distRate = 2.0f;
+						}
 
-						if (abs(angDist) < threshAngle && centerDist < threshCenter)
+
+						if (abs(angDist) < m_ThreshAngle * angRate && centerDist < m_ThreshCenterDist * distRate)
 						{
 
 							if (centerDist < minCenterDist)

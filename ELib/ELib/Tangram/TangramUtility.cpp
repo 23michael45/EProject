@@ -56,10 +56,12 @@ double get_point_angle(cv::Point pointO, cv::Point pointA)
 	return -1;
 }
 
-int get_vector_angle(cv::Point v1, cv::Point v2)
+double get_vector_angle(cv::Point v1, cv::Point v2)
 {
-	//acos return radian,we should transform it into degree  
-	return acos((v1.x*v2.x + v1.y * v2.y) / sqrt((v1.x*v1.x + v1.y * v1.y)*(v2.x*v2.x + v2.y * v2.y))) * 180 / 3.14f;
+	double dot = v1.x*v2.x + v1.y * v2.y;
+	double det = v1.x*v2.y - v1.y * v2.x;
+	double ang = atan2(det,dot) * 180 / 3.14f;
+	return ang;
 }
 
 double GetDist(cv::Point p1, cv::Point p2)

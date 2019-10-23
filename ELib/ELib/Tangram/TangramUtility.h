@@ -37,7 +37,7 @@ double get_point_angle(cv::Point pointO, cv::Point pointA);
 
 //Calcucate angle between vector A and B
 //·µ»Ø½Ç¶È; return degree
-int get_vector_angle(cv::Point v1,cv::Point v2);
+double get_vector_angle(cv::Point v1,cv::Point v2);
 
 double GetDist(cv::Point p1, cv::Point p2);
 

@@ -13,6 +13,7 @@ CPP_INTERFACE_API class TangramDetector : public std::enable_shared_from_this<Ta
 	friend class NoBasePieceState;
 public:
 	CPP_INTERFACE_API TangramDetector();
+	CPP_INTERFACE_API ~TangramDetector();
 
 
 	CPP_INTERFACE_API bool SetTemplateGraph(cv::Mat templateFrame);
@@ -51,6 +52,9 @@ private:
 	std::vector<TangramElementInfo::TangramTypeName> m_TypeNameVector;
 
 	cv::Mat m_CurrentDrawFrame;
+
+	double m_ThreshAngle;
+	double m_ThreshCenterDist;
 };
 
 

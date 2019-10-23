@@ -53,6 +53,7 @@ add_library(# Sets the name of the library.
             ${ProjectDir}Elib/NativeGraphics/RenderAPI_OpenGLCoreES.cpp
 
             ${ProjectDir}UnityNativeLoader/UnityNativeLoader.cpp
+            ${ProjectDir}Elib/Utility/UnityInterface.cpp
 
             #Tangram lib
             ${ProjectDir}Elib/Tangram/TangramData.cpp
