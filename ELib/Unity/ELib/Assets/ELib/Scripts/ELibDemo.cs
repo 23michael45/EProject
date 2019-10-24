@@ -12,6 +12,8 @@ public class ELibDemo : MonoBehaviour
     public Renderer m_ResultRenderer;
     Texture2D m_PaintedTexture;
 
+    public GameObject m_ObjectToShowWhenFitted;
+
     public int Channel(Texture2D tex)
     {
         int channel = 1;
@@ -39,8 +41,14 @@ public class ELibDemo : MonoBehaviour
         m_ResultRenderer.sharedMaterial = new Material(Shader.Find("Unlit/Texture"));
         m_ResultRenderer.sharedMaterial.SetTexture("_MainTex", m_PaintedTexture);
         Vector3 scale = new Vector3(m_TangramCamera.Width(), m_TangramCamera.Height(), 1);
-        m_ResultRenderer.gameObject.transform.localScale = scale / 2;
-        m_ResultRenderer.gameObject.transform.localPosition = new Vector3(m_TangramCamera.Width() / 4, -m_TangramCamera.Height() / 4, -1);
+
+        //set result view full 
+        m_ResultRenderer.gameObject.transform.localScale = scale;
+        m_ResultRenderer.gameObject.transform.localPosition = new Vector3(0,0, -1);
+
+        //set result view 1/4 
+        //m_ResultRenderer.gameObject.transform.localScale = scale / 2;
+        //m_ResultRenderer.gameObject.transform.localPosition = new Vector3(m_TangramCamera.Width() / 4, -m_TangramCamera.Height() / 4, -1);
 
         StartCoroutine(Feed());
     }
@@ -66,8 +74,30 @@ public class ELibDemo : MonoBehaviour
                 {
                     yield return new WaitForEndOfFrame();
                     UnityInterface.IssueEvent(eventName);
+
+
+                    if(UnityInterface.IsFitted())
+                    {
+                        DoWhileTangramFit();
+                    }
+                    else
+                    {
+                        DoWhileTangramNotFit();
+                    }
                 }
             }
         }
+    }
+
+    void DoWhileTangramFit()
+    {
+
+        m_ObjectToShowWhenFitted.SetActive(true);
+    }
+
+    void DoWhileTangramNotFit()
+    {
+
+        m_ObjectToShowWhenFitted.SetActive(false);
     }
 }

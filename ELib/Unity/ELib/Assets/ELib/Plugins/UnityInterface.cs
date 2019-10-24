@@ -139,6 +139,12 @@ public static class UnityInterface
     private delegate string SetPaintedTexture_Delegate(IntPtr handle, IntPtr nativeTexPtr, int width, int height, int channel);
     static SetPaintedTexture_Delegate　SetPaintedTexture;
 
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void GetFittedElements_Delegate(IntPtr handle, IntPtr pElementArray,ref int len);
+    static GetFittedElements_Delegate GetFittedElements;
+
+
     static void LoadFunctions()
     {
         GetProcAddress(ref CreateELib, "CreateELib");
@@ -150,6 +156,8 @@ public static class UnityInterface
 
         GetProcAddress(ref SetTemplateGraph, "SetTemplateGraph");
         GetProcAddress(ref SetPaintedTexture, "SetPaintedTexture");
+
+        GetProcAddress(ref GetFittedElements, "GetFittedElements");
     }
 #else
     
@@ -176,6 +184,10 @@ public static class UnityInterface
     [return: MarshalAs(UnmanagedType.LPStr)]
     private static extern string SetPaintedTexture(IntPtr handle, IntPtr nativeTexPtr, int width, int height,int channel);
 
+    [DllImport(m_ELibName)]
+    [return: MarshalAs(UnmanagedType.LPStr)]
+    private static void GetFittedElements(IntPtr handle, IntPtr pElementArray,ref int len);
+
 #endif
 
     [DllImport(m_UnityNativeLoaderName)]
@@ -189,10 +201,11 @@ public static class UnityInterface
 #if UNITY_EDITOR
         LoadLibrary();
 #endif
+
+        //first create then Issue,cause set event to map in create lib func
         m_Handle = CreateELib();
-
-
         IssueEvent("InitGraphicEvent");
+
     }
     public static void Destory()
     {
@@ -250,5 +263,21 @@ public static class UnityInterface
         string eventName = SetPaintedTexture(m_Handle, nativeTexPtr, tex.width, tex.height, channel);
 
         return eventName;
+    }
+
+    public static unsafe bool IsFitted()
+    {
+        int len = 0;
+        IntPtr pData = IntPtr.Zero;
+        GetFittedElements(m_Handle, pData, ref len);
+
+        UnityEngine.Debug.Log("Fitted Count:" + len);
+        
+        //base shape not add in vector
+        if (len == 6)
+        {
+            return true;
+        }
+        return false;
     }
 }
