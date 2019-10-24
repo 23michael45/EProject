@@ -421,10 +421,10 @@ void TangramDetector::Update(cv::Mat& frame)
 	cv::Mat hsv;
 	cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
 
-	std::vector<std::shared_ptr<TangramElementInfo>> fitElementsVector;
-	if (FindBaseWithEdge(hsv, fitElementsVector))
+	m_FittedElementsVector.clear();
+	if (FindBaseWithEdge(hsv, m_FittedElementsVector))
 	{
-		DrawResult(fitElementsVector);
+		DrawResult(m_FittedElementsVector);
 	}
 
 	//m_spStateMachine->updateWithDeltaTime();
@@ -448,6 +448,11 @@ CPP_INTERFACE_API bool TangramDetector::GetDrawData(char* &buffer, int &width, i
 CPP_INTERFACE_API cv::Mat& TangramDetector::GetDrawData()
 {
 	return m_CurrentDrawFrame;
+}
+
+CPP_INTERFACE_API std::vector<std::shared_ptr<TangramElementInfo>>& TangramDetector::GetFittedElements()
+{
+	return m_FittedElementsVector;
 }
 
 //----------------------------------------------------------------------------------------------

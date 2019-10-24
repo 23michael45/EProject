@@ -38,6 +38,9 @@
     <ClCompile Include="NativeGraphics\NativeGraphics.cpp">
       <Filter>NativeGraphics</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\MD5.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Tangram">
@@ -89,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="NativeGraphics\NativeGraphics.h">
       <Filter>NativeGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\MD5.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

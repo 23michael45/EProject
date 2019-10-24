@@ -111,7 +111,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ELIB_DEMO;_CRT_SECURE_NO_WARNINGS;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -185,6 +185,7 @@
     <ClCompile Include="Tangram\TangramDetection.cpp" />
     <ClCompile Include="Tangram\TangramStates.cpp" />
     <ClCompile Include="Tangram\TangramUtility.cpp" />
+    <ClCompile Include="Utility\MD5.cpp" />
     <ClCompile Include="Utility\UnityInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +199,7 @@
     <ClInclude Include="Tangram\TangramUtility.h" />
     <ClInclude Include="Utility\FSM\FSM.h" />
     <ClInclude Include="Utility\Interface.h" />
+    <ClInclude Include="Utility\MD5.h" />
     <ClInclude Include="Utility\UnityInterface.h" />
   </ItemGroup>
   <ItemGroup>

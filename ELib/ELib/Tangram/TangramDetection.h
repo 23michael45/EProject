@@ -23,6 +23,9 @@ public:
 
 	CPP_INTERFACE_API bool GetDrawData(char* &buffer, int &width, int &height, int &channel);
 	CPP_INTERFACE_API cv::Mat& GetDrawData();
+
+
+	CPP_INTERFACE_API std::vector<std::shared_ptr<TangramElementInfo>>& GetFittedElements();
 private:
 	void DrawResult(std::vector<std::shared_ptr<TangramElementInfo>>& fitElementsVector);
 
@@ -50,6 +53,9 @@ private:
 	std::map<TangramElementInfo::TangramTypeName, cv::Vec3b> m_HSVMap;
 	std::vector<TangramElementInfo::TangramType> m_TypeVector;
 	std::vector<TangramElementInfo::TangramTypeName> m_TypeNameVector;
+
+
+	std::vector<std::shared_ptr<TangramElementInfo>> m_FittedElementsVector;
 
 	cv::Mat m_CurrentDrawFrame;
 

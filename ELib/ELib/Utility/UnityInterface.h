@@ -17,6 +17,8 @@ extern "C" {
 	UNITY_INTERFACE_EXPORT  char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height, int channel);
 
 	UNITY_INTERFACE_EXPORT  char* SetPaintedTexture(char* handle, char* textureHandle, int width, int height, int channel);
+
+	UNITY_INTERFACE_EXPORT  void GetFittedElements(char* handle, char*& pElementArray, int &len);
 }
 
 #endif // UnityInterface_h__

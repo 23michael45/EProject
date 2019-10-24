@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_VERBOSE_MAKEFILE on)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D SUPPORT_OPENGL_ES")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ELIB_DEMO")
 
 
 #定义变量ocvlibs使后面的命令可以使用定位具体的库文件
@@ -54,6 +55,7 @@ add_library(# Sets the name of the library.
 
             ${ProjectDir}UnityNativeLoader/UnityNativeLoader.cpp
             ${ProjectDir}Elib/Utility/UnityInterface.cpp
+            ${ProjectDir}Elib/Utility/MD5.cpp
 
             #Tangram lib
             ${ProjectDir}Elib/Tangram/TangramData.cpp

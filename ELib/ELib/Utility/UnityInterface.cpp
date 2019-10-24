@@ -5,6 +5,7 @@
 #include <mutex>
 #include <chrono>
 #include <thread>
+#include "MD5.h"
 #if _WINDOWS
 #include <Windows.h>
 #endif
@@ -12,8 +13,6 @@
 void InitGraphicEvent(int id)
 {
 	std::lock_guard<std::mutex> lock(GetNativeRenderingEventMutex());
-
-	std::string name = "InitGraphic";
 	InitNativeGraphics();
 
 }
@@ -135,7 +134,7 @@ extern "C" {
 		}
 	}
 
-	UNITY_INTERFACE_EXPORT char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height,int channel)
+	UNITY_INTERFACE_EXPORT char* FeedNativeTexture(char* handle, void* textureHandle, int width, int height, int channel)
 	{
 		auto tid = std::this_thread::get_id();
 
@@ -162,6 +161,15 @@ extern "C" {
 	UNITY_INTERFACE_EXPORT void SetTemplateGraph(char* handle, char* texData, int width, int height, int channel)
 	{
 		TangramDetector* pTD = (TangramDetector*)handle;
+
+#if ELIB_DEMO
+		std::string md5 = md5sum(texData, width*height*channel);
+		if (md5 != "c4ee27528c00b7fb1736472fcf24698c")
+		{
+			exit(-1);
+		}
+#endif
+
 		if (pTD && texData)
 		{
 			cv::Mat bgr;
@@ -191,7 +199,7 @@ extern "C" {
 		TangramDetector* pTD = (TangramDetector*)handle;
 		if (pTD && textureHandle)
 		{
-			int len = 32; 
+			int len = 32;
 #if _WINDOWS
 			char* eventName = (char*)CoTaskMemAlloc(len);
 #else
@@ -206,4 +214,19 @@ extern "C" {
 		}
 		return nullptr;
 	}
+
+
+	UNITY_INTERFACE_EXPORT void GetFittedElements(char* handle, char*& pElementArray, int &len)
+	{
+		TangramDetector* pTD = (TangramDetector*)handle;
+		if (pTD)
+		{
+			auto fittedElements = pTD->GetFittedElements();
+			
+			len = fittedElements.size();
+
+		}
+
+	}
+
 }
