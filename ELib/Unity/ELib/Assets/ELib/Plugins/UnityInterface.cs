@@ -175,7 +175,7 @@ public static class UnityInterface
     
     [DllImport(m_ELibName)]
     [return: MarshalAs(UnmanagedType.LPStr)]
-    private static extern string FeedNativeTexture(IntPtr handle,IntPtr nativeTexPtr,int width,int height,int channel,int channel);
+    private static extern string FeedNativeTexture(IntPtr handle,IntPtr nativeTexPtr,int width,int height,int channel);
 
     [DllImport(m_ELibName)]
     private static extern void SetTemplateGraph(IntPtr handle,IntPtr texData,int width,int height,int channel);
@@ -185,8 +185,7 @@ public static class UnityInterface
     private static extern string SetPaintedTexture(IntPtr handle, IntPtr nativeTexPtr, int width, int height,int channel);
 
     [DllImport(m_ELibName)]
-    [return: MarshalAs(UnmanagedType.LPStr)]
-    private static void GetFittedElements(IntPtr handle, IntPtr pElementArray,ref int len);
+    private static extern void GetFittedElements(IntPtr handle, IntPtr pElementArray,ref int len);
 
 #endif
 
